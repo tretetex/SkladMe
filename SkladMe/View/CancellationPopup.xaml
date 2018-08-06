@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="SkladMe.View.CancellationPopup"
+             x:Name="UserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:SkladMe.View"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Border Background="#99000000">
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <TextBlock Text="{Binding ElementName=UserControl, Path=Status}"
+                       Foreground="White"
+                       FontSize="34"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
+            <controls:ProgressRing />
+            <Button Content="Отмена"
+                    Command="{Binding CancelRunningOperationCommand}"
+                    Background="Transparent"
+                    Width="100"
+                    Height="50"/>
+        </StackPanel>
+    </Border>
+</UserControl>

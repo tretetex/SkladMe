@@ -1,0 +1,1123 @@
+﻿<controls:MetroWindow x:Class="SkladMe.Controls.FiltersWindow"
+                      x:Name="FilterWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:local="clr-namespace:SkladMe.Controls"
+                      xmlns:infrastructure="clr-namespace:SkladMe.Infrastructure"
+                      xmlns:converters="clr-namespace:SkladMe.Resources.Converters"
+                      xmlns:view="clr-namespace:SkladMe.View"
+                      xmlns:vm ="clr-namespace:SkladMe.ViewModel"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      mc:Ignorable="d"
+                      UseLayoutRounding="True"
+                      Title="Фильтры" MinHeight="200" MinWidth="850"
+                      Height="600" Width="850"
+                      ResizeMode="CanResize"
+                      SnapsToDevicePixels="True"
+                      ShowTitleBar="True"
+                      TitleCharacterCasing="Normal"
+                      BorderThickness="1"
+                      BorderBrush="#6D4A75"
+                      NonActiveWindowTitleBrush="#6D4A75"
+                      WindowTitleBrush="#6D4A75"
+                      ShowIconOnTitleBar="True"
+                      WindowTransitionsEnabled="False"
+                      TitlebarHeight="30">
+    <Window.Resources>
+        <converters:IntegerOnlyConverter x:Key="IntegerOnlyConverter" />
+        <converters:DoubleOnlyConverter x:Key="DoubleOnlyConverter" />
+
+        <SolidColorBrush x:Key="HeaderBrush" Color="#eaeeff" />
+        <SolidColorBrush x:Key="HeaderBorderBrush" Color="#e1efff" />
+        <LinearGradientBrush x:Key="ChapterUnderlineGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="LightSkyBlue" Offset="0" />
+            <GradientStop Color="#00c4cfff" Offset="0.4" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="LineSeparatorGradient" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#0090d7dd" Offset="0" />
+            <GradientStop Color="#90d7dd" Offset="0.5" />
+            <GradientStop Color="#0090d7dd" Offset="1" />
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="FiltersChapterBrush" Color="LightSkyBlue" />
+        <Style x:Key="FilterSubchapterStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource HeaderFontStyle}">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Foreground" Value="{StaticResource FiltersChapterBrush}" />
+        </Style>
+    </Window.Resources>
+    <Grid Background="#eef1f7">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TabControl TabStripPlacement="Top" Style="{StaticResource FiltersTabControlStyle}">
+            <TabItem Header="Разделы">
+                <ScrollViewer>
+                    <Grid Background="#d5dae6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <!--Авторские складчины-->
+                            <GroupBox Grid.Column="0"
+                                      Style="{StaticResource ChaptersGroupBoxStyle}"
+                                      Margin="10,10,10,0">
+                                <StackPanel Orientation="Vertical">
+                                    <Border Background="{StaticResource HeaderBrush}"
+                                            BorderBrush="{StaticResource HeaderBorderBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="10,10">
+                                        <CheckBox Content="Авторские складчины"
+                                                  IsChecked="{Binding FiltersManagerVM.FiltersVM.AuthorsChapters.IsSelectedAll}"
+                                                  TextBlock.FontWeight="Bold" />
+                                    </Border>
+
+                                    <ItemsControl DataContext="{Binding FiltersManagerVM.FiltersVM}"
+                                                  ItemsSource="{Binding AuthorsChapters}" Margin="0,5">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding Name}"
+                                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          Margin="10,3,0,3" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <GroupBox.Effect>
+                                    <DropShadowEffect ShadowDepth="1" Direction="280"
+                                                      Opacity="0.2" BlurRadius="2" />
+                                </GroupBox.Effect>
+                            </GroupBox>
+
+                            <!--Переводы-->
+                            <GroupBox Grid.Column="1"
+                                      Style="{StaticResource ChaptersGroupBoxStyle}"
+                                      Margin="0,10,10,0">
+                                <StackPanel>
+                                    <Border Background="{StaticResource HeaderBrush}"
+                                            BorderBrush="{StaticResource HeaderBorderBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="10,10">
+                                        <CheckBox Content="Переводы"
+                                                  IsChecked="{Binding FiltersManagerVM.FiltersVM.TranslationsChapters.IsSelectedAll}"
+                                                  TextBlock.FontWeight="Bold" />
+                                    </Border>
+
+                                    <ItemsControl DataContext="{Binding FiltersManagerVM.FiltersVM}"
+                                                  ItemsSource="{Binding TranslationsChapters}" Margin="0,5">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding Name}"
+                                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          Margin="10,3,0,3" />
+
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <GroupBox.Effect>
+                                    <DropShadowEffect ShadowDepth="1" Direction="280"
+                                                      Opacity="0.2" BlurRadius="2" />
+                                </GroupBox.Effect>
+                            </GroupBox>
+                        </Grid>
+                        <!--Складчины-->
+                        <GroupBox Grid.Row="1"
+                                  Style="{StaticResource ChaptersGroupBoxStyle}"
+                                  Margin="10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Border Background="{StaticResource HeaderBrush}"
+                                        BorderBrush="{StaticResource HeaderBorderBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="10,10">
+                                    <CheckBox Content="Складчины"
+                                              IsChecked="{Binding FiltersManagerVM.FiltersVM.CommonChapters.IsSelectedAll}"
+                                              TextBlock.FontWeight="Bold" />
+                                </Border>
+
+                                <ItemsControl Grid.Row="1" DataContext="{Binding FiltersManagerVM.FiltersVM}"
+                                              ItemsSource="{Binding CommonChapters}" Margin="0,5">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <infrastructure:UniformGridWithOrientation IsItemsHost="True"
+                                                                                       Columns="3"
+                                                                                       Orientation="Vertical" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding Name}"
+                                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}, 
+                                                                                  Path=DataContext.SelectOnceCommand}"
+                                                      CommandParameter="СКЛАДЧИНЫ"
+                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      Margin="10,3,0,3" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                            <GroupBox.Effect>
+                                <DropShadowEffect ShadowDepth="1" Direction="280" Opacity="0.2"
+                                                  BlurRadius="2" />
+                            </GroupBox.Effect>
+                        </GroupBox>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Характеристики">
+                <ScrollViewer>
+                    <Grid Background="#d5dbe8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Expander Grid.Row="0" Header="ОСНОВНЫЕ" Margin="10"
+                                  Background="{StaticResource HeaderBrush}"
+                                  BorderBrush="{StaticResource HeaderBrush}"
+                                  Style="{StaticResource ExpanderStyle}" IsExpanded="True">
+                            <Grid Background="White">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <Grid Margin="10,10,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Text="Префикс" Grid.Column="0"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Префикс складчины" />
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                    HorizontalAlignment="Right"
+                                                    Margin="0,0,10,0">
+                                            <CheckBox x:Name="cbPrefix1" Content="Открыто"
+                                                      Background="#d7edfc"
+                                                      Style="{StaticResource CheckBoxPrefixStyle}"
+                                                      Width="76"
+                                                      IsChecked="{Binding FiltersManagerVM.FiltersVM.PrefixOpen, Mode=TwoWay}" />
+                                            <CheckBox x:Name="cbPrefix2" Content="Активно"
+                                                      Background="#ffaa10"
+                                                      Width="76"
+                                                      Margin="2,0"
+                                                      IsChecked="{Binding FiltersManagerVM.FiltersVM.PrefixActive, Mode=TwoWay}">
+                                                <CheckBox.Style>
+                                                    <Style TargetType="{x:Type CheckBox}"
+                                                           BasedOn="{StaticResource CheckBoxPrefixStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger
+                                                                Binding="{Binding ElementName=rbOrg3, Path=IsChecked}"
+                                                                Value="True">
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </DataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbFee1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbOrg3, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </MultiDataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbFee1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbOrg1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </CheckBox.Style>
+                                            </CheckBox>
+                                            <CheckBox Content="Закрыто"
+                                                      Background="#c0c0c0"
+                                                      Width="80"
+                                                      Margin="2,0"
+                                                      IsChecked="{Binding FiltersManagerVM.FiltersVM.PrefixCompleted, Mode=TwoWay}">
+                                                <CheckBox.Style>
+                                                    <Style TargetType="{x:Type CheckBox}"
+                                                           BasedOn="{StaticResource CheckBoxPrefixStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger
+                                                                Binding="{Binding ElementName=rbOrg3, Path=IsChecked}"
+                                                                Value="True">
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </DataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbFee1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbOrg3, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </MultiDataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbFee1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbOrg1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </MultiDataTrigger>
+
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </CheckBox.Style>
+                                            </CheckBox>
+                                            <CheckBox Content="Доступно"
+                                                      Background="#fbe3c4"
+                                                      Width="80"
+                                                      Margin="2,0"
+                                                      IsChecked="{Binding FiltersManagerVM.FiltersVM.PrefixAvailable, Mode=TwoWay}">
+                                                <CheckBox.Style>
+                                                    <Style TargetType="{x:Type CheckBox}"
+                                                           BasedOn="{StaticResource CheckBoxPrefixStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger
+                                                                Binding="{Binding ElementName=rbOrg3, Path=IsChecked}"
+                                                                Value="True">
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </DataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbFee1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbOrg3, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </MultiDataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbFee1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                    <Condition
+                                                                        Binding="{Binding ElementName=rbOrg1, Path=IsChecked}"
+                                                                        Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="IsEnabled"
+                                                                        Value="False" />
+                                                            </MultiDataTrigger>
+
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </CheckBox.Style>
+                                            </CheckBox>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Цена"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Цена продукта"
+                                                   KeyboardNavigation.TabNavigation="None" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="110"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.PriceFrom, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.PriceTo, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.Resources>
+                                            <Style TargetType="{x:Type local:RangeTextbox}" x:Key="FeeStyle">
+                                                <Setter Property="TextFrom"
+                                                        Value="{Binding FiltersManagerVM.FiltersVM.FeeFrom, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                                <Setter Property="TextTo"
+                                                        Value="{Binding FiltersManagerVM.FiltersVM.FeeTo, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding ElementName=cbiFee, Path=IsSelected}"
+                                                        Value="False">
+                                                        <Setter Property="TextFrom"
+                                                                Value="{Binding FiltersManagerVM.FiltersVM.RealFeeFrom, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                                        <Setter Property="TextTo"
+                                                                Value="{Binding FiltersManagerVM.FiltersVM.RealFeeTo, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <ComboBox Grid.Column="0"
+                                                  Style="{StaticResource ComboBoxPriceStyle}"
+                                                  IsReadOnly="True">
+                                            <ComboBoxItem x:Name="cbiFee"
+                                                          Content="Взнос"
+                                                          IsSelected="True" />
+                                            <ComboBoxItem Content="Реальный взнос"
+                                                          ToolTip="Взнос с учетом наличия организатора" />
+                                        </ComboBox>
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="110"
+                                                            Margin="0,0,10,0"
+                                                            Style="{StaticResource FeeStyle}" />
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Дата создания"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Дата создания складчины"
+                                                   KeyboardNavigation.TabNavigation="None" />
+                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right"
+                                                    Margin="0,0,10,0"
+                                                    Orientation="Horizontal">
+                                            <DatePicker
+                                                local:DatePickerWatermarkBehaviour.Watermark="От"
+                                                Width="110"
+                                                SelectedDate="{Binding FiltersManagerVM.FiltersVM.DateOfCreationFrom}" />
+                                            <TextBlock Text="–" Margin="5" Foreground="#959595" />
+                                            <DatePicker
+                                                local:DatePickerWatermarkBehaviour.Watermark="До"
+                                                Width="110"
+                                                SelectedDate="{Binding FiltersManagerVM.FiltersVM.DateOfCreationTo}" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid Margin="10,10,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Ник топикстартера"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Ник создателя складчины."
+                                                   KeyboardNavigation.TabNavigation="None" />
+                                        <TextBox Grid.Column="1" HorizontalAlignment="Right"
+                                                 TextAlignment="Center"
+                                                 Margin="0,0,10,0" Width="235"
+                                                 Foreground="#176093"
+                                                 Text="{Binding FiltersManagerVM.FiltersVM.TopicStarter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <TextBox.Style>
+                                                <Style TargetType="{x:Type TextBox}">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate
+                                                                TargetType="{x:Type TextBox}">
+                                                                <Border Name="Border"
+                                                                        Padding="2"
+                                                                        Background="#FFFFFF"
+                                                                        BorderBrush="#d5d5d4"
+                                                                        BorderThickness="1">
+                                                                    <Grid>
+                                                                        <ScrollViewer
+                                                                            Margin="0"
+                                                                            x:Name="PART_ContentHost"
+                                                                            VerticalAlignment="Center" />
+                                                                    </Grid>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger
+                                                                        Property="IsMouseOver"
+                                                                        Value="True">
+                                                                        <Setter
+                                                                            TargetName="Border"
+                                                                            Property="BorderBrush"
+                                                                            Value="#7f7f7f" />
+                                                                    </Trigger>
+                                                                    <Trigger
+                                                                        Property="IsFocused"
+                                                                        Value="True">
+                                                                        <Setter
+                                                                            TargetName="Border"
+                                                                            Property="BorderBrush"
+                                                                            Value="#7f7f7f" />
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </Grid>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <Grid Margin="10,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Организатор"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   Margin="10,0,0,0" />
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                    HorizontalAlignment="Right"
+                                                    Margin="0,0,10,0">
+                                            <RadioButton x:Name="rbOrg1" Content="Есть"
+                                                         Style="{StaticResource RadioButtonOrgStyle}"
+                                                         Margin="0,0,10,0"
+                                                         IsChecked="{Binding FiltersManagerVM.FiltersVM.OrganizerExistYes}" />
+                                            <RadioButton x:Name="rbOrg2" Content="Не важно"
+                                                         Style="{StaticResource RadioButtonOrgStyle}"
+                                                         Margin="0,0,10,0"
+                                                         IsChecked="{Binding FiltersManagerVM.FiltersVM.OrganizerExistNoMatter}" />
+                                            <RadioButton x:Name="rbOrg3" Content="Нет"
+                                                         Style="{StaticResource RadioButtonOrgStyle}"
+                                                         Margin="0,0,10,0"
+                                                         IsChecked="{Binding FiltersManagerVM.FiltersVM.OrganizerExistNo}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid Margin="10,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Ник организатора"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   Margin="10,0,0,0"
+                                                   ToolTip="Ник организатор" />
+                                        <TextBox Grid.Column="1" x:Name="tbOrgName"
+                                                 HorizontalAlignment="Right"
+                                                 TextAlignment="Center"
+                                                 Margin="0,0,10,0" Width="235"
+                                                 BorderBrush="Gray"
+                                                 Text="{Binding FiltersManagerVM.FiltersVM.OrganizerNickname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <TextBox.Style>
+                                                <Style TargetType="{x:Type TextBox}">
+                                                    <Setter Property="Foreground" Value="Gray" />
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate
+                                                                TargetType="{x:Type TextBox}">
+                                                                <Border Name="Border"
+                                                                        Padding="2"
+                                                                        Background="#FFFFFF"
+                                                                        BorderBrush="#d5d5d4"
+                                                                        BorderThickness="1">
+                                                                    <Grid>
+                                                                        <ScrollViewer
+                                                                            Margin="0"
+                                                                            x:Name="PART_ContentHost"
+                                                                            VerticalAlignment="Center" />
+                                                                    </Grid>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger
+                                                                        Property="IsMouseOver"
+                                                                        Value="True">
+                                                                        <Setter
+                                                                            TargetName="Border"
+                                                                            Property="BorderBrush"
+                                                                            Value="#7f7f7f" />
+                                                                    </Trigger>
+                                                                    <Trigger
+                                                                        Property="IsFocused"
+                                                                        Value="True">
+                                                                        <Setter
+                                                                            TargetName="Border"
+                                                                            Property="BorderBrush"
+                                                                            Value="#7f7f7f" />
+                                                                    </Trigger>
+                                                                    <Trigger
+                                                                        Property="IsEnabled"
+                                                                        Value="True">
+                                                                        <Setter
+                                                                            Property="Foreground"
+                                                                            Value="Red" />
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+
+                                        <Grid.Style>
+                                            <Style TargetType="{x:Type Grid}">
+                                                <Setter Property="IsEnabled" Value="False" />
+                                                <Style.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding ElementName=rbOrg1, Path=IsChecked}"
+                                                        Value="True">
+                                                        <Setter Property="IsEnabled"
+                                                                Value="True" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                    </Grid>
+
+                                    <Grid Margin="10,10,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Скоро сбор взносов"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   Margin="10,0,0,0"
+                                                   ToolTip="Скоро сбор взносов" />
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                    HorizontalAlignment="Right"
+                                                    Margin="0,0,10,0">
+                                            <RadioButton x:Name="rbFee1" Content="Да"
+                                                         Style="{StaticResource RadioButtonOrgStyle}"
+                                                         Margin="0,0,10,0"
+                                                         IsChecked="{Binding FiltersManagerVM.FiltersVM.FeeSoonYes}" />
+                                            <RadioButton x:Name="rbFee2" Content="Не важно"
+                                                         Style="{StaticResource RadioButtonOrgStyle}"
+                                                         Margin="0,0,10,0"
+                                                         IsChecked="{Binding FiltersManagerVM.FiltersVM.FeeSoonNoMatter}" />
+                                            <RadioButton x:Name="rbFee3" Content="Нет"
+                                                         Style="{StaticResource RadioButtonOrgStyle}"
+                                                         Margin="0,0,10,0"
+                                                         IsChecked="{Binding FiltersManagerVM.FiltersVM.FeeSoonNo}" />
+                                        </StackPanel>
+
+                                        <Grid.Style>
+                                            <Style TargetType="{x:Type Grid}">
+                                                <Setter Property="IsEnabled" Value="False" />
+                                                <Style.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding ElementName=rbOrg1, Path=IsChecked}"
+                                                        Value="True">
+                                                        <Setter Property="IsEnabled"
+                                                                Value="True" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Дата сбора взносов"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left" Margin="10,4,0,4"
+                                                   ToolTip="Дата сбора взносов" />
+                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right"
+                                                    Margin="0,0,10,0"
+                                                    Orientation="Horizontal">
+                                            <DatePicker
+                                                local:DatePickerWatermarkBehaviour.Watermark="От"
+                                                Width="110"
+                                                SelectedDate="{Binding FiltersManagerVM.FiltersVM.FeeDateFrom}" />
+                                            <TextBlock Text="–" Margin="5" Foreground="#959595" />
+                                            <DatePicker
+                                                local:DatePickerWatermarkBehaviour.Watermark="До"
+                                                Width="110"
+                                                SelectedDate="{Binding FiltersManagerVM.FiltersVM.FeeDateTo}" />
+                                        </StackPanel>
+
+                                        <Grid.Style>
+                                            <Style TargetType="{x:Type Grid}">
+                                                <Setter Property="IsEnabled" Value="False" />
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition
+                                                                Binding="{Binding ElementName=rbOrg1, Path=IsChecked}"
+                                                                Value="True" />
+                                                            <Condition
+                                                                Binding="{Binding ElementName=rbFee1, Path=IsChecked}"
+                                                                Value="True" />
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="IsEnabled"
+                                                                Value="True" />
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                    </Grid>
+                                </StackPanel>
+                                <Grid Grid.Column="1" Margin="10,10,0,5">
+                                    <Line X1="0,0" Y1="0,0" X2="0,0" Y2="1,0"
+                                          Stroke="{StaticResource LineSeparatorGradient}"
+                                          StrokeThickness="1" Stretch="Fill"
+                                          SnapsToDevicePixels="True" />
+                                </Grid>
+                            </Grid>
+                        </Expander>
+
+                        <Expander Grid.Row="1" Header="ДОПОЛНИТЕЛЬНЫЕ"
+                                  Margin="10,0,10,10"
+                                  Background="{StaticResource HeaderBrush}"
+                                  BorderBrush="{StaticResource HeaderBrush}"
+                                  Style="{StaticResource ExpanderStyle}" IsExpanded="True">
+                            <Grid Background="White">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Участники"
+                                               Style="{StaticResource FilterSubchapterStyle}"
+                                               HorizontalAlignment="Left"
+                                               Margin="10,5,0,5"
+                                               ToolTip="Фильтрация по участникам складчины." />
+                                    <Grid Margin="10,0,10,0">
+                                        <Line X1="0,0" Y1="0,0" X2="1,0" Y2="0,0"
+                                              StrokeThickness="1"
+                                              Stroke="{StaticResource ChapterUnderlineGradient}"
+                                              Stretch="Fill" />
+                                    </Grid>
+
+                                    <Grid Margin="10,10,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="В основном списке"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Количество человек в основном списке" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.PeopleMainCountFrom, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.PeopleMainCountTo, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="В резервном списке"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Количество человек в резервном списке" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.PeopleReserveCountFrom, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.PeopleReserveCountTo, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Осталось до минималки"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Количество человек до минимального взноса" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.PeopleCountForMinimalFrom, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.PeopleCountForMinimalTo, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                    </Grid>
+
+                                    <TextBlock Text="Отзывы и оценка"
+                                               Style="{StaticResource FilterSubchapterStyle}"
+                                               HorizontalAlignment="Left"
+                                               Margin="10,5,0,5">
+                                        <TextBlock.ToolTip>
+                                            <TextBlock>
+                                                Фильтрация складчины по отзывам и оценке.
+                                                <LineBreak />
+                                                Доступно только для всех префиксов, кроме "Открыто".
+                                            </TextBlock>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+                                    <Grid Margin="10,0,10,0">
+                                        <Line X1="0,0" Y1="0,0" X2="1,0" Y2="0,0"
+                                              StrokeThickness="1"
+                                              Stroke="{StaticResource ChapterUnderlineGradient}"
+                                              Stretch="Fill" />
+                                    </Grid>
+
+                                    <StackPanel>
+                                        <Grid Margin="10,10,0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="Количество отзывов"
+                                                       Style="{StaticResource HeaderFontStyle}"
+                                                       HorizontalAlignment="Left"
+                                                       ToolTip="Количество отзывов на продукт" />
+                                            <local:RangeTextbox Grid.Column="1"
+                                                                HorizontalAlignment="Right"
+                                                                TextboxWidth="80"
+                                                                Margin="0,0,10,0"
+                                                                TextFrom="{Binding FiltersManagerVM.FiltersVM.ReviewCountFrom, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}"
+                                                                TextTo="{Binding FiltersManagerVM.FiltersVM.ReviewCountTo, Mode=TwoWay, Converter={StaticResource IntegerOnlyConverter}}" />
+                                        </Grid>
+
+                                        <Grid Margin="10,0,0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Оценка"
+                                                       Style="{StaticResource HeaderFontStyle}"
+                                                       HorizontalAlignment="Left"
+                                                       ToolTip="Пользовательская оценка продукта" />
+                                            <local:RangeTextbox Grid.Column="1"
+                                                                HorizontalAlignment="Right"
+                                                                TextboxWidth="80"
+                                                                Margin="0,0,10,0"
+                                                                TextFrom="{Binding FiltersManagerVM.FiltersVM.ProductRaitingFrom, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}"
+                                                                TextTo="{Binding FiltersManagerVM.FiltersVM.ProductRaitingTo, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}" />
+                                        </Grid>
+                                        <StackPanel.Style>
+                                            <Style TargetType="{x:Type StackPanel}">
+                                                <Style.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding ElementName=cbPrefix1, Path=IsChecked}"
+                                                        Value="True">
+                                                        <Setter Property="IsEnabled"
+                                                                Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,0,0,10">
+                                        <TextBlock Text="Название"
+                                                   Style="{StaticResource FilterSubchapterStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   Margin="10,5,0,5"
+                                                   ToolTip="Фильтрация по названию" />
+                                        <Grid Margin="10,0,10,0">
+                                            <Line X1="0,0" Y1="0,0" X2="1,0" Y2="0,0"
+                                                  StrokeThickness="1"
+                                                  Stroke="{StaticResource ChapterUnderlineGradient}"
+                                                  Stretch="Fill" />
+                                        </Grid>
+
+                                        <StackPanel Margin="10,10,10,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Содержит "
+                                                           Style="{StaticResource HeaderFontStyle}"
+                                                           HorizontalAlignment="Left"
+                                                           ToolTip="Название складчины проверяется на наличие указанных слов." />
+                                                <ComboBox Style="{StaticResource ComboBoxPriceStyle}"
+                                                          IsReadOnly="True">
+                                                    <ComboBoxItem Content="все слова"
+                                                                  IsSelected="{Binding FiltersManagerVM.FiltersVM.AllWordsContains}" />
+                                                    <ComboBoxItem Content="любое слово">
+                                                        <ComboBoxItem.Style>
+                                                            <Style TargetType="{x:Type ComboBoxItem}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding FiltersManagerVM.FiltersVM.AllWordsContains}" Value="False">
+                                                                        <Setter Property="IsSelected" Value="True" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ComboBoxItem.Style>
+                                                        </ComboBoxItem>
+                                                </ComboBox>
+                                            </StackPanel>
+                                            
+                                            <ItemsControl
+                                                ItemsSource="{Binding FiltersManagerVM.FiltersVM.TitleKeywordIncluded}"
+                                                Tag="GoodTitle"
+                                                Style="{StaticResource LabelsItemsControlStyle}" />
+                                        </StackPanel>
+
+                                        <view:KeywordInput
+                                            ItemsSource="{Binding FiltersManagerVM.FiltersVM.TitleKeywordIncluded}" />
+
+                                        <StackPanel Margin="10,10,10,0">
+                                            <TextBlock Margin="0,0,10,0"
+                                                       Text="Не содержит слова:"
+                                                       Style="{StaticResource HeaderFontStyle}"
+                                                       HorizontalAlignment="Left">
+                                                <TextBlock.ToolTip>
+                                                    <TextBlock>
+                                                        Если в названии присутствует одно из
+                                                        <LineBreak />
+                                                        указанных слов, то складчина пропускается.
+                                                    </TextBlock>
+                                                </TextBlock.ToolTip>
+                                            </TextBlock>
+                                            <ItemsControl
+                                                ItemsSource="{Binding FiltersManagerVM.FiltersVM.TitleKeywordExcluded}"
+                                                Tag="BadTitle"
+                                                Style="{StaticResource LabelsItemsControlStyle}" />
+                                        </StackPanel>
+
+                                        <view:KeywordInput
+                                            ItemsSource="{Binding FiltersManagerVM.FiltersVM.TitleKeywordExcluded}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <Grid Grid.Column="1" Margin="10,10,0,5">
+                                    <Line X1="0,0" Y1="0,0" X2="0,0" Y2="1,0"
+                                          Stroke="{StaticResource LineSeparatorGradient}"
+                                          StrokeThickness="1" Stretch="Fill"
+                                          SnapsToDevicePixels="True" />
+                                </Grid>
+
+                                <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                    <TextBlock Text="Формулы"
+                                               Style="{StaticResource FilterSubchapterStyle}"
+                                               HorizontalAlignment="Left"
+                                               Margin="10,5,0,5"
+                                               ToolTip="Фильтрация по рассчитываемым характеристикам." />
+                                    <Grid Margin="10,0,10,0">
+                                        <Line X1="0,0" Y1="0,0" X2="1,0" Y2="0,0"
+                                              StrokeThickness="1"
+                                              Stroke="{StaticResource ChapterUnderlineGradient}"
+                                              Stretch="Fill" />
+                                    </Grid>
+
+                                    <Grid Margin="10,10,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="Популярность складчины"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Популярность складчины высчитывается по формуле." />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.PopularityFrom, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.PopularityTo, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}" />
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="Рейтинг для организатора"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Рейтинг складчины для пользователя в статусе &quot;Организатор&quot;" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.OrgRaitingFrom, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.OrgRaitingTo, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}" />
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="Рейтинг для члена клуба"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Рейтинг складчины для пользователя в статусе &quot;Член клуба&quot;" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.ClubMemberRaitingFrom, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.ClubMemberRaitingTo, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}" />
+                                    </Grid>
+
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="Соотношение взноса к цене"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Соотношение взноса к цене" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.FeeToPriceFrom, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.FeeToPriceTo, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}" />
+                                    </Grid>
+                                    <Grid Margin="10,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="Вовлеченность"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   ToolTip="Вовлеченность = общее число пользователей в складчине / просмотры * 100%" />
+                                        <local:RangeTextbox Grid.Column="1"
+                                                            HorizontalAlignment="Right"
+                                                            TextboxWidth="80"
+                                                            Margin="0,0,10,0"
+                                                            TextFrom="{Binding FiltersManagerVM.FiltersVM.InvolvementFrom, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}"
+                                                            TextTo="{Binding FiltersManagerVM.FiltersVM.InvolvementTo, Mode=TwoWay, Converter={StaticResource DoubleOnlyConverter}}" />
+                                    </Grid>
+                                    <StackPanel Margin="0,72,0,10">
+                                        <TextBlock Text="Теги"
+                                                   Style="{StaticResource FilterSubchapterStyle}"
+                                                   HorizontalAlignment="Left"
+                                                   Margin="10,5,0,5"
+                                                   ToolTip="Фильтрация по тегам" />
+                                        <Grid Margin="10,0,10,0">
+                                            <Line X1="0,0" Y1="0,0" X2="1,0" Y2="0,0"
+                                                  StrokeThickness="1"
+                                                  Stroke="{StaticResource ChapterUnderlineGradient}"
+                                                  Stretch="Fill" />
+                                        </Grid>
+
+                                        <StackPanel Margin="10,10,10,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Содержит "
+                                                           Style="{StaticResource HeaderFontStyle}"
+                                                           HorizontalAlignment="Left"
+                                                           ToolTip="Складчина проверяется на наличие указанных тегов." />
+
+                                                <ComboBox Style="{StaticResource ComboBoxPriceStyle}"
+                                                          IsReadOnly="True">
+                                                    <ComboBoxItem Content="все теги"
+                                                                  IsSelected="{Binding FiltersManagerVM.FiltersVM.AllTagsContains}" />
+                                                    <ComboBoxItem Content="любой тег">
+                                                        <ComboBoxItem.Style>
+                                                            <Style TargetType="{x:Type ComboBoxItem}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding FiltersManagerVM.FiltersVM.AllTagsContains}" Value="False">
+                                                                        <Setter Property="IsSelected" Value="True" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ComboBoxItem.Style>
+                                                    </ComboBoxItem>
+                                                </ComboBox>
+                                            </StackPanel>
+                                            
+                                            <ItemsControl
+                                                ItemsSource="{Binding FiltersManagerVM.FiltersVM.TagsIncluded}"
+                                                Tag="GoodTag"
+                                                Style="{StaticResource LabelsItemsControlStyle}" />
+                                        </StackPanel>
+
+                                        <view:KeywordInput
+                                            ItemsSource="{Binding FiltersManagerVM.FiltersVM.TagsIncluded}" />
+
+                                        <StackPanel Margin="10,10,10,0">
+                                            <TextBlock Margin="0,0,10,0"
+                                                       Text="Не содержит теги:"
+                                                       Style="{StaticResource HeaderFontStyle}"
+                                                       HorizontalAlignment="Left"
+                                                       ToolTip="Складчина пропускается, если присутствует один из указанных тегов." />
+
+                                            <ItemsControl
+                                                ItemsSource="{Binding FiltersManagerVM.FiltersVM.TagsExcluded}"
+                                                Tag="BadTag"
+                                                Style="{StaticResource LabelsItemsControlStyle}" />
+                                        </StackPanel>
+
+                                        <view:KeywordInput
+                                            ItemsSource="{Binding FiltersManagerVM.FiltersVM.TagsExcluded}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Expander>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="1"
+                BorderThickness="0,1,0,0"
+                BorderBrush="#828790">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right" Margin="10,5,10,10">
+                <StackPanel.Resources>
+                    <vm:SearchVM x:Key="SearchVm" />
+                    <BooleanToVisibilityConverter x:Key="B2V" />
+                        <Style TargetType="Button">
+                        <Setter Property="MinHeight" Value="25" />
+                        <Setter Property="MinWidth" Value="75" />
+                        <Setter Property="Margin" Value="10,0,0,0" />
+                    </Style>
+                </StackPanel.Resources>
+                <CheckBox Content="Синхронизировать просмотры" 
+                          IsChecked="{Binding Source={StaticResource SearchVm}, Path=UpdateViewCount, Mode=TwoWay}" 
+                          Visibility="{Binding ElementName=FilterWindow, Path=VisibileIsLocalSearch, Converter={StaticResource B2V}}" 
+                          Margin="5" />
+                <CheckBox Content="Искать только по базе" 
+                          IsChecked="{Binding Source={StaticResource SearchVm}, Path=IsLocalSearch, Mode=TwoWay}" 
+                          Visibility="{Binding ElementName=FilterWindow, Path=VisibileIsLocalSearch, Converter={StaticResource B2V}}"
+                          Margin="5"/>
+                <Button Content="OK"
+                        Click="Ok_Click" />
+                <Button Content="Отмена"
+                        Click="Cancel_Click" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</controls:MetroWindow>

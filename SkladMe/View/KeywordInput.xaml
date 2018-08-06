@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="SkladMe.View.KeywordInput"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:SkladMe.View"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    
+        <Grid Margin="10,5,10,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBox x:Name="TextBox" PreviewKeyDown="TextBox_PreviewKeyDown" />
+            <Button Grid.Column="1" 
+                    Content="+"
+                    Margin="10,0,0,0" 
+                    Width="30" 
+                    Click="AddKeyword" />
+        </Grid>
+</UserControl>

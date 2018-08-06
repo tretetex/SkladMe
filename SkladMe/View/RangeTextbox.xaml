@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="SkladMe.Controls.RangeTextbox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SkladMe.Controls"
+             mc:Ignorable="d"
+             x:Name="userControl">
+   <UserControl.Resources>
+        <ControlTemplate x:Key="hintTemplate" TargetType="{x:Type TextBox}">
+            <Border Name="Border" Padding="2" Background="#FFFFFF" 
+                    BorderBrush="#d5d5d4" BorderThickness="1" 
+                    Width="{Binding ElementName=userControl, Path=TextboxWidth}"
+                    Height="{Binding ElementName=userControl, Path=TextboxHeight}">
+                <Grid>
+                    <ScrollViewer Margin="0" x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                    <TextBlock Visibility="Hidden" x:Name="WatermarkText" VerticalAlignment="Center"
+                               IsHitTestVisible="False" Foreground="#666666" 
+                               Text="{TemplateBinding Tag}" Margin="5,0,0,0"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter Property="Visibility" TargetName="WatermarkText" Value="Visible" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Border" Property="BorderBrush" Value="#7f7f7f" />
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter TargetName="Border" Property="BorderBrush" Value="#7f7f7f" />
+                </Trigger>
+                <EventTrigger RoutedEvent="GotFocus">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="WatermarkText">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0.3"
+                                                         Duration="0:0:0.2" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+
+                <EventTrigger RoutedEvent="LostFocus">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="WatermarkText">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1"
+                                                         Duration="0:0:0.2" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+                
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </UserControl.Resources>
+    
+    <StackPanel Orientation="Horizontal">
+        <TextBox Template="{StaticResource hintTemplate}" 
+                 Tag="{Binding ElementName=userControl, Path=HintFrom}" 
+                 Text="{Binding ElementName=userControl, Path=TextFrom}" />
+        <TextBlock Text="–" Margin="5" Foreground="#959595"/>
+        <TextBox Template="{StaticResource hintTemplate}" 
+                 Tag="{Binding ElementName=userControl, Path=HintTo}" 
+                 Text="{Binding ElementName=userControl, Path=TextTo}" />
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,745 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:SkladMe.Resources.Converters">
+
+    <converters:ItemsControlObjectsConverter x:Key="ItemsControlObjectsConverter" />
+    <converters:StringUpperConverter x:Key="StringUpperConverter" />
+    
+    <Style x:Key="HeaderFontStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="Calibri Light" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#b2b2b2" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="FilterButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Image x:Name="Image"
+                           Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Button}}, Path=Tag}"
+                           Stretch="None"
+                           RenderOptions.BitmapScalingMode="Fant" Opacity="0.7" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Image" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Image" Property="RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="0.8" ScaleY="0.8" CenterX="8" CenterY="8" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PanelButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="Transparent"
+                            Margin="0,5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Image x:Name="Image" Grid.Row="0"
+                                   Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Button}}, Path=Tag}"
+                                   Stretch="None"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                            <TextBlock x:Name="TextBlock" Grid.Row="1" Text="{TemplateBinding Content}"
+                                       Foreground="#474747" 
+                                       FontSize="11" 
+                                       HorizontalAlignment="Center"/>
+                            <Border x:Name="Border"
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Opacity="0.2"
+                                    BorderThickness="1"
+                                    Background="Transparent" 
+                                    Width="73"
+                                    Height="70" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="DarkGray" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="Black" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="DarkGray" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="Black" />
+                            <Setter TargetName="Border" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="TextBlock" Property="Foreground" Value="#a1a1a1" />
+                        </Trigger>
+                        <Trigger Property="Content" Value="{x:Null}">
+                            <Setter TargetName="TextBlock" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="TwoLinePanelButton" TargetType="{x:Type Button}">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="Transparent"
+                            Margin="0,5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Image x:Name="Image" Grid.Row="0"
+                                   Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Button}}, Path=Tag}"
+                                   Stretch="None"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                            <TextBlock x:Name="TextBlock1" Grid.Row="1"
+                                       Text="{TemplateBinding Name}" 
+                                       Foreground="#474747" 
+                                       FontSize="11" 
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TextBlock2" 
+                                           Grid.Row="2"
+                                       HorizontalAlignment="Center"
+                                       Text="{TemplateBinding Content}" 
+                                       Foreground="#474747"
+                                       FontSize="11"
+                                       Margin="0,-8,0,0"/>
+
+                            <Border x:Name="Border"
+                                    Grid.Row="0"
+                                    Grid.RowSpan="3"
+                                    Opacity="0.2"
+                                    BorderThickness="1"
+                                    Background="Transparent"
+                                    Width="73"
+                                    Height="70"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background"
+                                    Value="DarkGray" />
+                            <Setter TargetName="Border" Property="BorderBrush"
+                                    Value="Black" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Border" Property="Background"
+                                    Value="DarkGray" />
+                            <Setter TargetName="Border" Property="BorderBrush"
+                                    Value="Black" />
+                            <Setter TargetName="Border" Property="Opacity"
+                                    Value="0.4" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="TextBlock1"
+                                    Property="Foreground" Value="#a1a1a1" />
+                            <Setter TargetName="TextBlock2"
+                                    Property="Foreground" Value="#a1a1a1" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="SearchPanelToggleTemplate" TargetType="{x:Type ToggleButton}">
+        <Border Background="Transparent">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0" x:Name="Image" Source="Icons/search/checkbox-off.png"
+                       Stretch="None" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" x:Name="TextBlock" Text="{TemplateBinding Content}" Foreground="#5b5b5b"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           FontFamily="Calibri Light"
+                           Margin="5,0" />
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="TextBlock" Property="Foreground" Value="#2e9fff" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Image" Property="Source" Value="Icons/search/checkbox-on.png" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <!--TabControl's-->
+    <Style x:Key="MainTabControlStyle" TargetType="{x:Type TabControl}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="UnselectedBrush" Color="#9e9ea0" />
+            <SolidColorBrush x:Key="SelectedBrush" Color="#ffffff" />
+            <SolidColorBrush x:Key="BorderMouseOverBrush" Color="#19FFFFFF" />
+            <SolidColorBrush x:Key="MouseOverBrush" Color="#99ffffff" />
+        </Style.Resources>
+        <Setter Property="TabStripPlacement" Value="Left" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabControl}">
+                    <Grid KeyboardNavigation.TabNavigation="Local">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TabPanel x:Name="HeaderPanel"
+                                  Grid.Column="0"
+                                  Panel.ZIndex="1"
+                                  Margin="0,45,0,0"
+                                  IsItemsHost="True"
+                                  KeyboardNavigation.TabIndex="1"
+                                  Background="Transparent" />
+
+                        <Border x:Name="Border"
+                                Grid.Column="1"
+                                BorderThickness="0"
+                                KeyboardNavigation.TabNavigation="Local"
+                                KeyboardNavigation.DirectionalNavigation="Contained"
+                                KeyboardNavigation.TabIndex="2"
+                                Background="White"
+                                BorderBrush="Transparent">
+                            <Grid>
+                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                  Margin="0"
+                                                  ContentSource="SelectedContent" />
+                            </Grid>
+
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TabItem}">
+                                <Border x:Name="Body" Padding="10" Background="Transparent">
+                                    <Image x:Name="Image"
+                                           Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TabItem}}, Path=Tag}"
+                                           Stretch="None"
+                                           Opacity="0.5" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Image" Property="Opacity" Value="0.7" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Body" Property="Background"
+                                                Value="{StaticResource BorderMouseOverBrush}" />
+                                        <Setter TargetName="Image" Property="Opacity" Value="1" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="FiltersTabControlStyle" TargetType="{x:Type TabControl}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="SelectedTextBrush" Color="#4e515e" />
+            <SolidColorBrush x:Key="BorderUnderLineBrush" Color="#15a4fa" />
+            <SolidColorBrush x:Key="UnselectedTextBrush" Color="#989898" />
+            <SolidColorBrush x:Key="MouseOverTextBrush" Color="#707382" />
+            <SolidColorBrush x:Key="MouseOverBorderBrush" Color="#f89e34" />
+            <SolidColorBrush x:Key="SelectedTabItemBrush" Color="#ebedf3" />
+            <SolidColorBrush x:Key="BorderStrokeColor" Color="#bec2cd" />
+        </Style.Resources>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabControl}">
+                    <Grid KeyboardNavigation.TabNavigation="Local">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0"
+                                BorderBrush="#f2f5f9"
+                                BorderThickness="0,1,0,0">
+                            <Grid>
+                                <TabPanel x:Name="HeaderPanel"
+                                          Margin="0,0,0,0"
+                                          IsItemsHost="True"
+                                          KeyboardNavigation.TabIndex="1"
+                                          Background="Transparent" />
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Новый" Command="{Binding FiltersManagerVM.AddFilterCommand}"
+                                            Margin="0,0,10,0" Tag="Icons/filters/add.png"
+                                            Style="{StaticResource FilterButtonStyle}" ToolTip="Создать новый фильтр" />
+                                    <Button Content="Save" Command="{Binding FiltersManagerVM.SaveSettingsCommand}"
+                                            Margin="0,0,10,0" Tag="Icons/filters/save.png"
+                                            Style="{StaticResource FilterButtonStyle}" ToolTip="Сохранить текущий фильтр" />
+                                    <Button Content="Load" Command="{Binding FiltersManagerVM.LoadSettingsCommand}"
+                                            Margin="0,0,10,0" Tag="Icons/filters/open.png"
+                                            Style="{StaticResource FilterButtonStyle}" ToolTip="Загрузить фильтры" />
+                                    <Button Content="Reset" Command="{Binding FiltersManagerVM.ResetSettingsCommand}"
+                                            Margin="0,0,10,0" Tag="Icons/filters/reset.png"
+                                            Style="{StaticResource FilterButtonStyle}" ToolTip="Сброс" />
+                                    <TextBlock Text="Текущий фильтр: "
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                                    <ComboBox ItemsSource="{Binding FiltersManagerVM.Filters}"
+                                              SelectedItem="{Binding FiltersManagerVM.FiltersVM, Mode=TwoWay}"
+                                              DisplayMemberPath="Title"
+                                              HorizontalAlignment="Center"
+                                              Height="20"
+                                              Width="100"
+                                        Margin="0,0,20,0"/>
+                                    <Button Content="Reset" Command="{Binding FiltersManagerVM.ReloadFiltersCommand}"
+                                            Margin="0,0,10,0" Tag="Icons/filters/refresh.png"
+                                            Style="{StaticResource FilterButtonStyle}" ToolTip="Обновить список фильтров" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border x:Name="Border"
+                                Grid.Row="1"
+                                BorderThickness="0,1,0,0"
+                                KeyboardNavigation.TabNavigation="Local"
+                                KeyboardNavigation.DirectionalNavigation="Contained"
+                                KeyboardNavigation.TabIndex="2"
+                                Background="White"
+                                BorderBrush="{StaticResource BorderStrokeColor}">
+
+                            <Border BorderThickness="0,1,0,0"
+                                    BorderBrush="#cdd1dd">
+                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                  Margin="0"
+                                                  ContentSource="SelectedContent" />
+                            </Border>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TabItem}">
+                                <Border Margin="15,0">
+                                    <Border x:Name="Border"
+                                            Background="Transparent"
+                                            BorderThickness="0,0,0,3">
+                                        <TextBlock x:Name="TextBlock"
+                                                   Text="{TemplateBinding Header}"
+                                                   Foreground="{StaticResource UnselectedTextBrush}"
+                                                   FontFamily="Calibri"
+                                                   FontSize="16"
+                                                   FontWeight="Medium"
+                                                   Style="{StaticResource HeaderFontStyle}"
+                                                   Margin="0,10" />
+                                    </Border>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="TextBlock" Property="Foreground"
+                                                Value="{StaticResource BorderUnderLineBrush}" />
+                                        <Setter TargetName="Border" Property="BorderBrush"
+                                                Value="{StaticResource BorderUnderLineBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="TextBlock" Property="Foreground"
+                                                Value="{StaticResource BorderUnderLineBrush}" />
+                                        <Setter TargetName="Border" Property="BorderBrush"
+                                                Value="{StaticResource BorderUnderLineBrush}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+     <Style x:Key="RadioButtonOrgStyle" TargetType="{x:Type RadioButton}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="BorderSelectedBrush" Color="#06b1f4" />
+            <SolidColorBrush x:Key="SelectedBrush" Color="#06b1f4" />
+            <SolidColorBrush x:Key="UnselectedBrush" Color="#cfd0c9" />
+            <SolidColorBrush x:Key="MouseOverBrush" Color="#6dcef4" />
+        </Style.Resources>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Border x:Name="Border" BorderBrush="Transparent" BorderThickness="0,0,0,2">
+                        <StackPanel>
+                            <TextBlock x:Name="TextBlock" Text="{TemplateBinding Content}"
+                                       Foreground="{StaticResource UnselectedBrush}"
+                                       Style="{StaticResource HeaderFontStyle}" />
+                            <Line x:Name="Line" Stroke="{StaticResource UnselectedBrush}" HorizontalAlignment="Stretch"
+                                  X2="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                  StrokeDashArray="2 2" StrokeThickness="1" />
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource MouseOverBrush}" />
+                            <Setter TargetName="TextBlock" Property="Foreground"
+                                    Value="{StaticResource MouseOverBrush}" />
+                            <Setter TargetName="Line" Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush"
+                                    Value="{StaticResource BorderSelectedBrush}" />
+                            <Setter TargetName="TextBlock" Property="Foreground" Value="{StaticResource SelectedBrush}" />
+                            <Setter TargetName="Line" Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsEnabled" Value="False" />
+                            </MultiTrigger.Conditions>
+
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UnselectedBrush}" />
+                            <Setter TargetName="TextBlock" Property="Foreground"
+                                    Value="{StaticResource UnselectedBrush}" />
+                            <Setter TargetName="Line" Property="Visibility" Value="Hidden" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="CheckBoxPrefixStyle" TargetType="{x:Type CheckBox}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="UnselectedTextBrush" Color="#cfd0c9" />
+            <SolidColorBrush x:Key="SelectedTextBrush" Color="Black" />
+            <SolidColorBrush x:Key="DisabledTextBrush" Color="#cfcecc" />
+            <LinearGradientBrush x:Key="GradientBrush" StartPoint="0,0" EndPoint="0,1" Opacity="0.1">
+                <GradientStop Color="White" Offset="0.0" />
+                <GradientStop Color="#00FFFFFF" Offset="0.45" />
+                <GradientStop Color="#00000000" Offset="0.55" />
+                <GradientStop Color="Black" Offset="1" />
+            </LinearGradientBrush>
+        </Style.Resources>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <Border x:Name="Border"
+                            CornerRadius="4"
+                            Background="Transparent"
+                            BorderThickness="1">
+                        <Border x:Name="BorderEnabled" Padding="5,0" CornerRadius="4" Margin="1">
+                            <TextBlock x:Name="HeaderBlock"
+                                       Text="{TemplateBinding Content}"
+                                       Style="{StaticResource HeaderFontStyle}"
+                                       Foreground="Black" />
+                        </Border>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="HeaderBlock" Property="TextDecorations">
+                                <Setter.Value>
+                                    <TextDecorationCollection>
+                                        <TextDecoration Location="Underline"
+                                                        PenThicknessUnit="FontRecommended">
+                                            <TextDecoration.Pen>
+                                                <Pen Thickness="1.5"
+                                                     Brush="{Binding ElementName=HeaderBlock, Path=Foreground}">
+                                                    <Pen.DashStyle>
+                                                        <DashStyle Dashes="2,4" />
+                                                    </Pen.DashStyle>
+                                                </Pen>
+                                            </TextDecoration.Pen>
+                                        </TextDecoration>
+                                    </TextDecorationCollection>
+                                </Setter.Value>
+                            </Setter>
+
+                            <Setter TargetName="Border" Property="BorderBrush" Value="Transparent" />
+                            <Setter TargetName="HeaderBlock" Property="Foreground"
+                                    Value="{StaticResource UnselectedTextBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Border" Property="Background"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Background}" />
+                            <Setter TargetName="BorderEnabled" Property="Background"
+                                    Value="{StaticResource GradientBrush}" />
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HeaderBlock" Property="TextDecorations" Value="{x:Null}" />
+                            <Setter TargetName="HeaderBlock" Property="Foreground"
+                                    Value="{StaticResource SelectedTextBrush}" />
+                            <Setter TargetName="BorderEnabled" Property="Background"
+                                    Value="{StaticResource GradientBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="HeaderBlock" Property="TextDecorations">
+                                <Setter.Value>
+                                    <TextDecorationCollection>
+                                        <TextDecoration Location="Strikethrough"
+                                                        PenThicknessUnit="FontRecommended">
+                                            <TextDecoration.Pen>
+                                                <Pen Thickness="1.5"
+                                                     Brush="{Binding ElementName=HeaderBlock, Path=Foreground}">
+                                                    <Pen.DashStyle>
+                                                        <DashStyle Dashes="2,4" />
+                                                    </Pen.DashStyle>
+                                                </Pen>
+                                            </TextDecoration.Pen>
+                                        </TextDecoration>
+                                    </TextDecorationCollection>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="HeaderBlock" Property="Foreground"
+                                    Value="{StaticResource DisabledTextBrush}" />
+                            <Setter Property="IsChecked" Value="False" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ChaptersGroupBoxStyle" TargetType="{x:Type GroupBox}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#eaeeff" />
+        </Style.Resources>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GroupBox}">
+                    <Border Background="#ffffff">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Simple Expander Button's Template-->
+    <ControlTemplate x:Key="SimpleExpanderButtonTemp" TargetType="{x:Type ToggleButton}">
+        <ControlTemplate.Resources>
+            <SolidColorBrush x:Key="HeaderBrush" Color="#7c7c7c" />
+            <SolidColorBrush x:Key="SelectedBrush" Color="Black" />
+        </ControlTemplate.Resources>
+        <Border x:Name="ExpanderButtonBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                Padding="{TemplateBinding Padding}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Rectangle Fill="Transparent" Grid.ColumnSpan="2" />
+
+                <ContentPresenter x:Name="HeaderContent"
+                                  Grid.Column="0"
+                                  Margin="5,0,0,0"
+                                  ContentSource="Content"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  TextBlock.Foreground="{StaticResource HeaderBrush}"
+                                  TextBlock.FontSize="11"
+                                  TextBlock.FontWeight="Normal" />
+
+                <Rectangle Name="Rectangle"
+                           Grid.Column="1"
+                           Stroke="{StaticResource HeaderBrush}"
+                           StrokeThickness="0.5"
+                           Width="15"
+                           Height="15"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" Margin="0,0,5,0" />
+                <TextBlock Grid.Column="1" x:Name="Sign" Text="+"
+                           HorizontalAlignment="Center" Margin="0,0,5,6"
+                           Foreground="{StaticResource HeaderBrush}"
+                           FontSize="20" FontWeight="UltraLight" SnapsToDevicePixels="True" />
+
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+            <!--Change the sign to minus when toggled-->
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Text" Value="-" TargetName="Sign" />
+            </Trigger>
+
+            <!-- MouseOver, Pressed behaviours-->
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="Stroke" Value="{StaticResource SelectedBrush}" TargetName="Rectangle" />
+                <Setter Property="Foreground" Value="{StaticResource SelectedBrush}" TargetName="Sign" />
+                <Setter Property="TextBlock.Foreground" Value="{StaticResource SelectedBrush}"
+                        TargetName="HeaderContent" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter Property="Stroke" Value="{StaticResource SelectedBrush}" TargetName="Rectangle" />
+                <Setter Property="StrokeThickness" Value="1.5" TargetName="Rectangle" />
+                <Setter Property="Foreground" Value="{StaticResource SelectedBrush}" TargetName="Sign" />
+                <Setter Property="TextBlock.Foreground" Value="{StaticResource SelectedBrush}"
+                        TargetName="HeaderContent" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <Style x:Key="ExpanderStyle" TargetType="{x:Type Expander}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Expander}">
+                    <StackPanel>
+                        <ToggleButton x:Name="ExpanderButton"
+                                      DockPanel.Dock="Top"
+                                      Template="{StaticResource SimpleExpanderButtonTemp}"
+                                      Content="{TemplateBinding Header}"
+                                      IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                      OverridesDefaultStyle="True"
+                                      Padding="1.5,0"
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}" />
+                        <Border DockPanel.Dock="Bottom"
+                                BorderBrush="{Binding ElementName=ExpanderButton, Path=BorderBrush}">
+                            <ContentPresenter x:Name="ExpanderContent"
+                                              Visibility="Collapsed" />
+                        </Border>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpanderContent" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect ShadowDepth="1" Direction="280" Opacity="0.2" BlurRadius="2" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="LabelButtonStyle" TargetType="{x:Type Button}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="EllipseUnselectBrush" Color="LightGray" />
+            <SolidColorBrush x:Key="EllipseSelectBrush" Color="#c03433" />
+        </Style.Resources>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="Border" Background="{TemplateBinding Background}" BorderThickness="1" Padding="7,5"
+                            Margin="0,2,4,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TextBlock" Grid.Column="0" Text="{TemplateBinding Content}"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Calibri" FontSize="14" FontWeight="Light"
+                                       Foreground="{TemplateBinding BorderBrush}" />
+                            <Grid Grid.Column="1" Margin="4,0,0,0">
+                                <Ellipse x:Name="Ellipse" Width="15" Height="15"
+                                         Fill="{StaticResource EllipseUnselectBrush}" SnapsToDevicePixels="True"
+                                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Line X1="0" Y1="0" X2="7" Y2="7" Stroke="White" StrokeThickness="2"
+                                      SnapsToDevicePixels="True" Margin="4,5,0,0" />
+                                <Line X1="7" Y1="0" X2="0" Y2="7" Stroke="White" StrokeThickness="2"
+                                      SnapsToDevicePixels="True" Margin="4,5,0,0" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Ellipse" Property="Fill" Value="{StaticResource EllipseSelectBrush}" />
+                            <Setter TargetName="Border" Property="Background"
+                                    Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="LabelsItemsControlStyle" TargetType="{x:Type ItemsControl}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="UnselectGoodLabelBrush" Color="#c6ffb5" />
+            <SolidColorBrush x:Key="SelectGoodLabelBrush" Color="#a1cf93" />
+            <SolidColorBrush x:Key="UnselectBadLabelBrush" Color="#ff8c8c" />
+
+            <SolidColorBrush x:Key="SelectBadLabelBrush" Color="#d95151" />
+            <SolidColorBrush x:Key="BadLabelTextBrush" Color="#681e03" />
+            <SolidColorBrush x:Key="GoodLabelTextBrush" Color="#2f4c3b" />
+        </Style.Resources>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <WrapPanel IsItemsHost="True" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ContentPresenter}">
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <Button x:Name="btnRemove"
+                                        Style="{StaticResource LabelButtonStyle}"
+                                        Content="{Binding}"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=ItemsSource.RemoveKeywordCommand}"
+                                        CommandParameter="{Binding}"
+                                        Background="{StaticResource UnselectGoodLabelBrush}"
+                                        Foreground="{StaticResource SelectGoodLabelBrush}"
+                                        BorderBrush="{StaticResource GoodLabelTextBrush}" />
+                                <DataTemplate.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=Tag}"
+                                        Value="BadTitle">
+                                        <Setter TargetName="btnRemove" Property="Background"
+                                                Value="{StaticResource UnselectBadLabelBrush}" />
+                                        <Setter TargetName="btnRemove" Property="Foreground"
+                                                Value="{StaticResource SelectBadLabelBrush}" />
+                                        <Setter TargetName="btnRemove" Property="BorderBrush"
+                                                Value="{StaticResource BadLabelTextBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=Tag}"
+                                        Value="BadTag">
+                                        <Setter TargetName="btnRemove" Property="Background"
+                                                Value="{StaticResource UnselectBadLabelBrush}" />
+                                        <Setter TargetName="btnRemove" Property="Foreground"
+                                                Value="{StaticResource SelectBadLabelBrush}" />
+                                        <Setter TargetName="btnRemove" Property="BorderBrush"
+                                                Value="{StaticResource BadLabelTextBrush}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

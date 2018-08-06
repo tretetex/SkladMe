@@ -1,0 +1,63 @@
+﻿<Window x:Class="Launcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Launcher"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        Width="525"
+        Height="195"
+        Title="MainWindow" 
+        Icon="Resources/loupe2.ico"
+        UseLayoutRounding="True">
+    <Border>
+        <Grid>
+            <Image Source="Resources/background.jpg" 
+                   SnapsToDevicePixels="True"/>
+            <StackPanel VerticalAlignment="Center" Margin="20,40,20,0">
+                <TextBlock Text="{Binding Status}"
+                           Foreground="#e8e8e8"
+                           HorizontalAlignment="Right" />
+                <ProgressBar Background="#4C000000"
+                             Foreground="DarkSlateBlue"
+                             BorderBrush="#43494f"
+                             IsIndeterminate="True"
+                             Height="10"
+                             Margin="0,10,0,20" />
+                <Button Content="Отменить"
+                        Width="150"
+                        Height="25"
+                        HorizontalAlignment="Right"
+                        Click="Button_Click">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}" BasedOn="{x:Null}">
+                            <Setter Property="Background" Value="#444a50" />
+                            <Setter Property="Foreground" Value="#959ca4" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Border Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#535b62" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#4b5258" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+    </Border>
+</Window>

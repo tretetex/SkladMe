@@ -1,0 +1,1673 @@
+﻿<controls:MetroWindow x:Class="SkladMe.MainWindow"
+                      x:Name="mainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      xmlns:myControls="clr-namespace:SkladMe.Controls"
+                      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                      xmlns:inf="clr-namespace:SkladMe.Infrastructure"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
+                      xmlns:converters="clr-namespace:SkladMe.Resources.Converters"
+                      xmlns:view="clr-namespace:SkladMe.View"
+                      xmlns:viewModel="clr-namespace:SkladMe.ViewModel"
+                      xmlns:properties="clr-namespace:SkladMe.Properties"
+                      Height="600" Width="900"
+                      MinHeight="300" MinWidth="600"
+                      ResizeMode="CanResize"
+                      UseLayoutRounding="True"
+                      SnapsToDevicePixels="True"
+                      ShowTitleBar="True"
+                      BorderBrush="#6D4A75"
+                      NonActiveWindowTitleBrush="#6D4A75"
+                      WindowTitleBrush="#6D4A75"
+                      ShowIconOnTitleBar="True"
+                      WindowTransitionsEnabled="False"
+                      TitlebarHeight="30"
+                      WindowCloseButtonStyle="{DynamicResource CleanCloseWindowButtonStyle}"
+                      Icon="Resources/Icons/loupe1.ico">
+    <controls:MetroWindow.Style>
+        <Style TargetType="{x:Type controls:MetroWindow}">
+            <Setter Property="BorderThickness" Value="0,1,1,0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding AuthorizationVM.IsSuccess}" Value="False">
+                    <Setter Property="BorderThickness" Value="1" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </controls:MetroWindow.Style>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding CloseWindowCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <controls:MetroWindow.IconTemplate>
+        <DataTemplate />
+    </controls:MetroWindow.IconTemplate>
+
+    <controls:MetroWindow.LeftWindowCommands>
+        <controls:WindowCommands ShowSeparators="False">
+            <StackPanel Orientation="Horizontal" Margin="-20,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Sklad"
+                               FontFamily="Arial"
+                               FontSize="13"
+                               VerticalAlignment="Center"
+                               Foreground="#f2f2f2" />
+                    <TextBlock Text="Me"
+                               FontFamily="Arial"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Margin="0,5,0,0"
+                               Foreground="#e4e4e4" />
+                </StackPanel>
+                <Border Padding="12,0">
+                    <Grid Margin="30,0,0,0">
+                        <Border Background="Black" Opacity="0.2" Margin="-10,0" />
+                        <TextBlock Text="{Binding ElementName=tcMain, Path=SelectedItem.Header}"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+        </controls:WindowCommands>
+    </controls:MetroWindow.LeftWindowCommands>
+    <Window.Resources>
+        <SolidColorBrush x:Key="MainPanelBrush" Color="#2a2d33" />
+        <SolidColorBrush x:Key="WindowTitleBrush" Color="#6D4A75" />
+
+        <converters:SelectedItemsConverter x:Key="SelectedItemsConverter" />
+        <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
+        <converters:BooleanToInvisibilityConverter x:Key="BooleanToInvisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <CollectionViewSource Source="{Binding ColorManagerVM.Colors}" x:Key="Colors" />
+
+        <Style x:Key="DefaultRowStyle" TargetType="{x:Type DataGridRow}">
+            <Setter Property="ToolTip" Value="{Binding Note}" />
+            <Setter Property="Background"
+                    Value="{Binding Color, Converter={StaticResource StringToBrushConverter}, Mode=TwoWay}" />
+            <Setter Property="BorderBrush"
+                    Value="{Binding Color, Converter={StaticResource StringToBrushConverter}, Mode=TwoWay}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#e5f3ff" />
+                    <Setter Property="Background" Value="#e5f3ff" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="BorderBrush" Value="#cde8ff" />
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" />
+                        <Condition Property="IsSelected" Value="True" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="BorderBrush" Value="#99d1ff" />
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MenuItemChangeColorStyle" TargetType="{x:Type MenuItem}">
+            <Setter Property="Command" Value="{Binding ChangeProductColorCommand}" />
+            <Setter Property="CommandParameter"
+                    Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}" />
+        </Style>
+
+        <DataTemplate x:Key="ColorInMenuTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Rectangle Grid.Column="0"
+                           Fill="{Binding Value, Converter={StaticResource StringToBrushConverter}}"
+                           Width="15" Height="15" Margin="-50,0,0,0" />
+                <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="-20,0,0,0" />
+            </Grid>
+        </DataTemplate>
+
+        <Style TargetType="{x:Type MenuItem}" x:Key="MenuItemSetCategoriesColorSyle">
+            <Setter Property="ItemContainerStyle" Value="{StaticResource MenuItemChangeColorStyle}" />
+            <Setter Property="ItemTemplate" Value="{StaticResource ColorInMenuTemplate}" />
+            <Setter Property="ItemsSource">
+                <Setter.Value>
+                    <CompositeCollection>
+                        <MenuItem x:Name="MenuItemNoColor" Header="Без цвета" Margin="0,3"
+                                  Command="{Binding ProductManager.ResetColorCommand}" />
+                        <Separator Margin="-50,-5,-5,-3" />
+                        <CollectionContainer Collection="{Binding Source={StaticResource Colors}}" />
+                        <Separator Margin="-50,-5,-5,-7" />
+                        <MenuItem Header="Редактировать метки" Margin="0,3">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction
+                                        Command="{Binding DataContext.ColorManagerVM.EditColorsCommand, Source={x:Reference mainWindow}}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </MenuItem>
+                    </CompositeCollection>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type MenuItem}" x:Key="MenuItemSetResultsColorSyle">
+            <Setter Property="ItemsSource">
+                <Setter.Value>
+                    <CompositeCollection>
+                        <MenuItem x:Name="MenuItemNoColor" Header="Без цвета" Margin="0,3"
+                                  Command="{Binding CategoryManagerVM.ProductManager.ResetColorCommand}" />
+                        <Separator Margin="-50,-5,-5,-3" />
+                        <CollectionContainer Collection="{Binding Source={StaticResource Colors}}" />
+                        <Separator Margin="-50,-5,-5,-7" />
+                        <MenuItem Header="Редактировать метки" Margin="0,3">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding ColorManagerVM.EditColorsCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </MenuItem>
+                    </CompositeCollection>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle" Value="{StaticResource MenuItemChangeColorStyle}" />
+            <Setter Property="ItemTemplate" Value="{StaticResource ColorInMenuTemplate}" />
+        </Style>
+
+        <Style x:Key="CleanCloseWindowButtonStyle" TargetType="{x:Type Button}"
+               BasedOn="{StaticResource MetroWindowButtonStyle}">
+            <Style.Triggers>
+
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EB2F2F" />
+                    <Setter Property="Foreground" Value="{DynamicResource WhiteBrush}" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#7C0000" />
+                </Trigger>
+
+            </Style.Triggers>
+        </Style>
+
+
+        <!-- base button style for min, max and close window buttons -->
+        <Style x:Key="MetroBaseWindowButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background"
+                    Value="{DynamicResource TransparentWhiteBrush}" />
+            <Setter Property="Foreground"
+                    Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Center" />
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center" />
+            <Setter Property="Padding"
+                    Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid x:Name="grid"
+                              Background="{TemplateBinding Background}">
+                            <ContentPresenter x:Name="contentPresenter"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                              RecognizesAccessKey="True"
+                                              Opacity="0.75" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="contentPresenter"
+                                        Property="Opacity"
+                                        Value="1" />
+                                <Setter TargetName="grid"
+                                        Property="Background"
+                                        Value="{DynamicResource SemiTransparentWhiteBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver"
+                                     Value="False">
+                                <Setter TargetName="contentPresenter"
+                                        Property="Opacity"
+                                        Value=".5" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="false">
+                                <Setter Property="Foreground"
+                                        Value="#ADADAD" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- default button style for min, max and close window buttons -->
+        <Style x:Key="MetroWindowButtonStyle"
+               TargetType="{x:Type Button}"
+               BasedOn="{StaticResource MetroBaseWindowButtonStyle}">
+            <Setter Property="FocusVisualStyle"
+                    Value="{x:Null}" />
+            <Setter Property="IsTabStop"
+                    Value="False" />
+            <Setter Property="Width"
+                    Value="34" />
+            <Setter Property="MaxHeight"
+                    Value="34" />
+            <Setter Property="Padding"
+                    Value="0" />
+        </Style>
+
+        <Style x:Key="CustomLightMetroWindowButtonStyle" TargetType="{x:Type Button}"
+               BasedOn="{StaticResource MetroWindowButtonStyle}">
+            <Setter Property="Foreground" Value="#caccce" />
+        </Style>
+
+        <Style TargetType="{x:Type controls:WindowButtonCommands}"
+               BasedOn="{StaticResource {x:Type controls:WindowButtonCommands}}">
+            <Setter Property="LightMinButtonStyle" Value="{StaticResource CustomLightMetroWindowButtonStyle}" />
+            <Setter Property="LightMaxButtonStyle" Value="{StaticResource CustomLightMetroWindowButtonStyle}" />
+            <Setter Property="LightCloseButtonStyle" Value="{StaticResource CustomLightMetroWindowButtonStyle}" />
+        </Style>
+
+        <DataTemplate x:Key="CategoryTemplate" DataType="{x:Type viewModel:CategoryVM}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <!-- Панель -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <!-- Кнопки -->
+                    <StackPanel Grid.Row="0" Margin="5" Orientation="Horizontal">
+                        <Button Content="Обновить"
+                                Command="{Binding ProductManager.RefreshCommand}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource PanelButtonStyle}">
+                                    <Setter Property="Tag"
+                                            Value="/Resources/Icons/panels/Обновить.png" />
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding ProductManager.IsRefreshing}"
+                                            Value="True">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Обновить (стоп).png" />
+                                        </DataTrigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Обновить [disabled].png" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Обновить [hover].png" />
+                                        </Trigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding ProductManager.IsRefreshing}" Value="True" />
+                                                <Condition
+                                                    Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=IsMouseOver}"
+                                                    Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Обновить (стоп) [hover].png" />
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Content="Экспорт"
+                                Command="{Binding ProductManager.ExportCommand}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource PanelButtonStyle}">
+                                    <Setter Property="Tag"
+                                            Value="/Resources/Icons/panels/Экспорт.png" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Экспорт [disabled].png" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Экспорт [hover].png" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" Margin="5">
+                            <Separator
+                                Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                                Background="#e4e4e4" />
+                        </StackPanel>
+                        <Button Content="Фильтр"
+                                Command="{Binding ShowFiltersCommand}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource PanelButtonStyle}">
+                                    <Setter Property="Tag"
+                                            Value="/Resources/Icons/panels/Фильтр.png" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Фильтр [disabled].png" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Фильтр [hover].png" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Сброс"
+                                Command="{Binding ResetFiltersCommand}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource PanelButtonStyle}">
+                                    <Setter Property="Tag"
+                                            Value="/Resources/Icons/panels/Фильтр (сброс).png" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Фильтр (сброс) [disabled].png" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Фильтр (сброс) [hover].png" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" Margin="5">
+                            <Separator
+                                Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                                Background="#e4e4e4" />
+                        </StackPanel>
+                        <Button Content="в категорию"
+                                Name="Добавить"
+                                DataContext="{Binding ElementName=mainWindow, Path=DataContext}"
+                                Command="{Binding CategoryManagerVM.AddProductToCategoryCommand}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource TwoLinePanelButton}">
+                                    <Setter Property="Tag"
+                                            Value="/Resources/Icons/panels/Добавить в категорию.png" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Добавить в категорию [disabled].png" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Добавить в категорию [hover].png" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Content="складчину"
+                                Name="Добaвить"
+                                DataContext="{Binding ElementName=mainWindow, Path=DataContext}"
+                                Command="{Binding CategoryManagerVM.AddProductFromUrlCommand}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource TwoLinePanelButton}">
+                                    <Setter Property="Tag"
+                                            Value="/Resources/Icons/panels/Добавить складчину.png" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Добавить складчину [disabled].png" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Tag"
+                                                    Value="/Resources/Icons/panels/Добавить складчину [hover].png" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,0">
+                            <Separator
+                                Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                                Background="#e4e4e4" />
+                        </StackPanel>
+
+                    </StackPanel>
+                    <!-- /Кнопки -->
+                    <!-- Счетчики -->
+
+                    <StackPanel Orientation="Horizontal"
+                                Grid.Column="1"
+                                Margin="0,5,15,5"
+                                HorizontalAlignment="Right"
+                                DataContext="{Binding ProductManager}">
+
+
+                        <TextBlock
+                            Text="{Binding (inf:AnimatableDoubleHelper.AnimatedProperty), RelativeSource={RelativeSource Self},
+                                            StringFormat=0}"
+                            inf:AnimatableDoubleHelper.OriginalProperty="{Binding ProductsCount}"
+                            FontSize="20"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Margin="0,10,15,10" />
+
+                        <Grid Grid.Column="1" Margin="0,0,10,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Открыто"
+                                           Foreground="#a1a1a1" FontSize="11" FontFamily="Roboto" />
+                                <TextBlock Grid.Column="1" Text="{Binding OpenProductsCount}" />
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Активно" Foreground="#a1a1a1" FontSize="11"
+                                           FontFamily="Roboto" />
+                                <TextBlock Grid.Column="1" Text="{Binding ActiveProductsCount}" />
+                            </Grid>
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Закрыто" Foreground="#a1a1a1" FontSize="11"
+                                           FontFamily="Roboto" />
+                                <TextBlock Grid.Column="1" Text="{Binding ClosedProductsCount}" />
+                            </Grid>
+                            <Grid Grid.Row="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Доступно" Foreground="#a1a1a1" FontSize="11"
+                                           FontFamily="Roboto" />
+                                <TextBlock Grid.Column="1" Text="{Binding AvailableProductsCount}" />
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+                    <!-- /Счетчики -->
+                </Grid>
+                <!-- /Панель -->
+
+                <Border Grid.Row="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <myControls:ProductsDataGrid
+                            x:Name="dgCategory"
+                            ColumnsSizeCollection="{Binding ElementName=mainWindow, Path=DataContext.ColumnInfo}"
+                            Grid.Row="0"
+                            DataContext="{Binding}"
+                            ItemsSource="{Binding Products}"
+                            RowStyle="{StaticResource DefaultRowStyle}">
+                            
+                            <myControls:ProductsDataGrid.SelectedItems>
+                                <MultiBinding Converter="{StaticResource SelectedItemsConverter}">
+                                    <Binding Path="ProductManager.SelectedProducts"
+                                             Mode="OneWayToSource" />
+                                    <Binding Path="DataContext.CategoryManagerVM.ProductManager.SelectedProducts"
+                                             Mode="OneWayToSource"
+                                             ElementName="mainWindow" />
+                                </MultiBinding>
+                            </myControls:ProductsDataGrid.SelectedItems>
+                            <myControls:ProductsDataGrid.GridContextMenu>
+                                <ContextMenu Tag="results">
+                                    <MenuItem Header="Открыть в браузере"
+                                              Command="{Binding ProductManager.OpenProductsCommand}" />
+                                    <MenuItem Header="Копировать ссылку"
+                                              Command="{Binding ProductManager.CopyLinksCommand}" />
+                                    <MenuItem Header="Сохранить"
+                                              Command="{Binding ProductManager.SaveProductsCommand}" />
+                                    <MenuItem Header="Обновить"
+                                              Command="{Binding ProductManager.RefreshSelectedProductsCommand}" />
+                                    <MenuItem Header="Удалить"
+                                              Command="{Binding RemoveProductsCommand}" />
+                                    <MenuItem Header="Цвет"
+                                              Style="{StaticResource MenuItemSetCategoriesColorSyle}" />
+                                </ContextMenu>
+                            </myControls:ProductsDataGrid.GridContextMenu>
+                            <myControls:ProductsDataGrid.InputBindings>
+                                <KeyBinding Key="Enter"
+                                            Command="{Binding ProductManager.OpenProductsCommand}" />
+                                <KeyBinding Key="Delete"
+                                            Command="{Binding RemoveProductsCommand}" />
+                                <KeyBinding Key="C" Modifiers="Control"
+                                            Command="{Binding ProductManager.CopyLinksCommand}" />
+                                <MouseBinding Gesture="LeftDoubleClick"
+                                              Command="{Binding ProductManager.OpenProductsCommand}" />
+                            </myControls:ProductsDataGrid.InputBindings>
+
+                        </myControls:ProductsDataGrid>
+                        <Border Grid.Row="0"
+                                Background="White">
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </Style>
+                            </Border.Style>
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                Text="Загрузка..."
+                                VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <view:CancellationPopup Grid.Row="0"
+                                        Grid.RowSpan="2"
+                                        DataContext="{Binding ProductManager}">
+                    <view:CancellationPopup.Style>
+                        <Style TargetType="{x:Type view:CancellationPopup}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRefreshing}" Value="True">
+                                    <Setter Property="Status" Value="ОБНОВЛЕНИЕ..." />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExporting}" Value="True">
+                                    <Setter Property="Status" Value="СОХРАНЕНИЕ..." />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </view:CancellationPopup.Style>
+                </view:CancellationPopup>
+            </Grid>
+        </DataTemplate>
+
+        <!--Поиск-->
+        <DataTemplate x:Key="SearchTemplate">
+            <Grid DataContext="{Binding ElementName=mainWindow, Path=DataContext}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,0">
+                            <Button Command="{Binding SearchVM.StartCommand}">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}"
+                                           BasedOn="{StaticResource PanelButtonStyle}">
+                                        <Setter Property="Content" Value="Искать" />
+                                        <Setter Property="Tag"
+                                                Value="/Resources/Icons/panels/Искать.png" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SearchVM.IsStarted}" Value="True">
+                                                <Setter Property="Content" Value="Прервать" />
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Искать (стоп).png" />
+                                            </DataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding SearchVM.IsStarted}" Value="True" />
+                                                    <Condition
+                                                        Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+                                                        Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Искать (стоп) [hover].png" />
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding SearchVM.IsStarted}" Value="False" />
+                                                    <Condition
+                                                        Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}"
+                                                        Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Искать [hover].png" />
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Separator
+                                    Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                                    Background="#e4e4e4" />
+                            </StackPanel>
+                            <Button Content="Фильтры"
+                                    Command="{Binding SearchVM.ShowFiltersCommand}">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}"
+                                           BasedOn="{StaticResource PanelButtonStyle}">
+                                        <Setter Property="Tag"
+                                                Value="/Resources/Icons/panels/Фильтр (в поиске).png" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Фильтр (в поиске) [disabled].png" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Фильтр (в поиске) [hover].png" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Экспорт"
+                                    Command="{Binding CategoryManagerVM.ProductManager.ExportCommand}"
+                                    ToolTip="Экспортировать складчины">
+                                <Button.Style>
+                                    <Style BasedOn="{StaticResource PanelButtonStyle}"
+                                           TargetType="{x:Type Button}">
+                                        <Setter Property="Tag"
+                                                Value="/Resources/Icons/panels/Экспорт.png" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SearchVM.IsStarted}" Value="True">
+                                                <Setter Property="IsEnabled" Value="False" />
+                                            </DataTrigger>
+
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Экспорт [disabled].png" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Экспорт [hover].png" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Separator
+                                    Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                                    Background="#e4e4e4" />
+                            </StackPanel>
+                            <Button Name="Добавить"
+                                    Content="в категории"
+                                    Command="{Binding CategoryManagerVM.AddProductToCategoryFromSearchCommand}">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}"
+                                           BasedOn="{StaticResource TwoLinePanelButton}">
+                                        <Setter Property="Tag"
+                                                Value="/Resources/Icons/panels/Добавить в категорию.png" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SearchVM.IsStarted}" Value="True">
+                                                <Setter Property="IsEnabled" Value="False" />
+                                            </DataTrigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Добавить в категорию [disabled].png" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Добавить в категорию [hover].png" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="отображения"
+                                    Name="Настройки"
+                                    Command="{Binding CategoryManagerVM.ShowCategoriesVisibilityWindowCommand}">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}"
+                                           BasedOn="{StaticResource TwoLinePanelButton}">
+                                        <Setter Property="Tag"
+                                                Value="/Resources/Icons/panels/Настройки отображения.png" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SearchVM.IsStarted}"
+                                                         Value="True">
+                                                <Setter Property="IsEnabled" Value="False" />
+                                            </DataTrigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Настройки отображения [disabled].png" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/panels/Настройки отображения [hover].png" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Separator
+                                    Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                                    Background="#e4e4e4" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    Margin="0,5,15,5"
+                                    HorizontalAlignment="Right"
+                                    DataContext="{Binding CategoryManagerVM.ProductManager}">
+                            <TextBlock
+                                Text="{Binding (inf:AnimatableDoubleHelper.AnimatedProperty), RelativeSource={RelativeSource Self}, StringFormat=0}"
+                                inf:AnimatableDoubleHelper.OriginalProperty="{Binding ProductsCount}"
+                                FontSize="20"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Margin="0,10,15,10" />
+
+                            <Grid Grid.Column="1" Margin="0,0,10,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Открыто"
+                                               Foreground="#a1a1a1" FontSize="11" FontFamily="Roboto" />
+                                    <TextBlock Grid.Column="1" Text="{Binding OpenProductsCount}" />
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Активно" Foreground="#a1a1a1" FontSize="11"
+                                               FontFamily="Roboto" />
+                                    <TextBlock Grid.Column="1" Text="{Binding ActiveProductsCount}" />
+                                </Grid>
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Закрыто"
+                                               Foreground="#a1a1a1" FontSize="11" FontFamily="Roboto" />
+                                    <TextBlock Grid.Column="1" Text="{Binding ClosedProductsCount}" />
+                                </Grid>
+                                <Grid Grid.Row="3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Доступно"
+                                               Foreground="#a1a1a1" FontSize="11" FontFamily="Roboto" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding AvailableProductsCount}" />
+                                </Grid>
+                            </Grid>
+                        </StackPanel>
+
+
+                    </Grid>
+
+                </Border>
+
+                <myControls:ProductsDataGrid x:Name="SearchDg"
+                                             Grid.Row="1"
+                                             DataContext="{Binding ElementName=mainWindow, Path=DataContext}"
+                                             ColumnsSizeCollection="{Binding ColumnInfo}"
+                                             ItemsSource="{Binding SearchVM.Products}"
+                                             RowStyle="{StaticResource DefaultRowStyle}"
+                                             IsDragAvailable="True">
+                    <myControls:ProductsDataGrid.SelectedItems>
+                        <MultiBinding Converter="{StaticResource SelectedItemsConverter}">
+                            <Binding Path="CategoryManagerVM.SelectedProductsFromSearch"
+                                     Mode="OneWayToSource" />
+                            <Binding Path="CategoryManagerVM.ProductManager.SelectedProducts"
+                                     Mode="OneWayToSource" />
+                        </MultiBinding>
+                    </myControls:ProductsDataGrid.SelectedItems>
+                    <myControls:ProductsDataGrid.InputBindings>
+                        <KeyBinding Key="Enter"
+                                    Command="{Binding CategoryManagerVM.ProductManager.OpenProductsCommand}" />
+                        <KeyBinding Key="Delete"
+                                    Command="{Binding CategoryManagerVM.ProductManager.RemoveProductsCommand}" />
+                        <KeyBinding Key="C" Modifiers="Control"
+                                    Command="{Binding CategoryManagerVM.ProductManager.CopyLinksCommand}" />
+                        <MouseBinding Gesture="LeftDoubleClick"
+                                      Command="{Binding CategoryManagerVM.ProductManager.OpenProductsCommand}" />
+                    </myControls:ProductsDataGrid.InputBindings>
+                    <myControls:ProductsDataGrid.GridContextMenu>
+                        <ContextMenu Tag="results">
+                            <MenuItem Header="Открыть в браузере"
+                                      Command="{Binding CategoryManagerVM.ProductManager.OpenProductsCommand}" />
+                            <MenuItem Header="Копировать ссылку"
+                                      Command="{Binding CategoryManagerVM.ProductManager.CopyLinksCommand}" />
+                            <MenuItem Header="Сохранить"
+                                      Command="{Binding CategoryManagerVM.ProductManager.SaveProductsCommand}" />
+                            <MenuItem Header="Удалить"
+                                      Command="{Binding CategoryManagerVM.ProductManager.RemoveProductsCommand}">
+                                <MenuItem.InputBindings>
+                                    <KeyBinding Key="Delete"
+                                                Command="{Binding CategoryManagerVM.ProductManager.RemoveProductsCommand}" />
+                                </MenuItem.InputBindings>
+                            </MenuItem>
+                            <MenuItem Header="Цвет"
+                                      Style="{StaticResource MenuItemSetResultsColorSyle}" />
+                        </ContextMenu>
+                    </myControls:ProductsDataGrid.GridContextMenu>
+                </myControls:ProductsDataGrid>
+
+
+                <view:CancellationPopup Grid.Row="0"
+                                        Grid.RowSpan="2"
+                                        DataContext="{Binding CategoryManagerVM.ProductManager}">
+                    <view:CancellationPopup.Style>
+                        <Style TargetType="{x:Type view:CancellationPopup}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRefreshing}" Value="True">
+                                    <Setter Property="Status" Value="ОБНОВЛЕНИЕ..." />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExporting}" Value="True">
+                                    <Setter Property="Status" Value="СОХРАНЕНИЕ..." />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </view:CancellationPopup.Style>
+                </view:CancellationPopup>
+            </Grid>
+        </DataTemplate>
+
+        <Style x:Key="CategoriesTabControlStyle" TargetType="{x:Type TabControl}">
+            <Style.Resources>
+                <ControlTemplate x:Key="CloseTabButton" TargetType="{x:Type Button}">
+                    <Grid>
+                        <Ellipse x:Name="Ellipse" Width="15" Height="15"
+                                 Fill="Transparent" SnapsToDevicePixels="True"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Line x:Name="Line1"
+                              X1="0" Y1="0" X2="7" Y2="7"
+                              Stroke="#c7c7c7" StrokeThickness="1"
+                              SnapsToDevicePixels="True" Margin="4,9,0,0" />
+                        <Line x:Name="Line2"
+                              X1="7" Y1="0" X2="0" Y2="7"
+                              Stroke="#c7c7c7" StrokeThickness="1"
+                              SnapsToDevicePixels="True" Margin="4,9,0,0" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Ellipse" Property="Fill" Value="#c03433" />
+                            <Setter TargetName="Line1" Property="Stroke" Value="White" />
+                            <Setter TargetName="Line2" Property="Stroke" Value="White" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Ellipse" Property="Fill" Value="#a8352a" />
+                            <Setter TargetName="Line1" Property="Stroke" Value="White" />
+                            <Setter TargetName="Line2" Property="Stroke" Value="White" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Style.Resources>
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate />
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="1"
+                                        Background="#f2f2f2"
+                                        BorderBrush="#e4e4e4"
+                                        BorderThickness="0,0,0,1" />
+
+                                <TabPanel x:Name="HeaderPanel"
+                                          Grid.Column="1"
+                                          IsItemsHost="True"
+                                          KeyboardNavigation.TabIndex="1"
+                                          Background="Transparent" />
+                            </Grid>
+
+                            <ContentPresenter Grid.Row="1"
+                                              x:Name="PART_SelectedContentHost"
+                                              ContentSource="SelectedContent" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type TabItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TabItem}">
+                                    <Border x:Name="TabBorder"
+                                            BorderThickness="0,1,1,0"
+                                            Background="White"
+                                            BorderBrush="#e4e4e4"
+                                            Height="31">
+                                        <Grid Margin="3,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal"
+                                                        VerticalAlignment="Center">
+                                                <Image x:Name="Image"
+                                                       Margin="5,0" Stretch="None">
+                                                    <Image.Style>
+                                                        <Style TargetType="{x:Type Image}">
+                                                            <Setter Property="Source"
+                                                                    Value="/Resources/Icons/categories/folder.png" />
+                                                            <Style.Triggers>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding Title}"
+                                                                                   Value="Черный список" />
+                                                                        <Condition Binding="{Binding IsFixed}"
+                                                                                   Value="True" />
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <Setter Property="Source"
+                                                                            Value="/Resources/Icons/categories/blacklist.png" />
+                                                                </MultiDataTrigger>
+
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding Title}"
+                                                                                   Value="Избранное" />
+                                                                        <Condition Binding="{Binding IsFixed}"
+                                                                                   Value="True" />
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <Setter Property="Source"
+                                                                            Value="/Resources/Icons/categories/favorites.png" />
+                                                                </MultiDataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Image.Style>
+                                                </Image>
+                                                <TextBlock x:Name="TextBlock"
+                                                           Text="{Binding Title}"
+                                                           FontSize="12"
+                                                           Foreground="#474747" />
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                    Command="{Binding CloseCommand}"
+                                                    Margin="10,0,5,0"
+                                                    Template="{StaticResource CloseTabButton}"
+                                                    VerticalAlignment="Center" />
+                                        </Grid>
+                                        <Border.InputBindings>
+                                            <MouseBinding Command="{Binding CloseCommand}" Gesture="MiddleClick" />
+                                        </Border.InputBindings>
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="False">
+                                            <Setter TargetName="TabBorder" Property="Background" Value="Transparent" />
+                                            <Setter TargetName="TextBlock" Property="Foreground" Value="#797979" />
+                                            <Setter TargetName="Image" Property="Source"
+                                                    Value="/Resources/Icons/categories/folder-disabled.png" />
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsSelected" Value="False" />
+                                                <Condition Property="IsMouseOver" Value="True" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter TargetName="TabBorder" Property="Background" Value="#dadada" />
+                                        </MultiTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition
+                                                    Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}"
+                                                    Value="False" />
+                                                <Condition Binding="{Binding Title}" Value="Черный список" />
+                                                <Condition Binding="{Binding IsFixed}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter TargetName="Image" Property="Source"
+                                                    Value="/Resources/Icons/categories/blacklist-disabled.png" />
+                                        </MultiDataTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition
+                                                    Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}"
+                                                    Value="False" />
+                                                <Condition Binding="{Binding Title}" Value="Избранное" />
+                                                <Condition Binding="{Binding IsFixed}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter TargetName="Image" Property="Source"
+                                                    Value="/Resources/Icons/categories/favorites-disabled.png" />
+                                        </MultiDataTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid Background="{StaticResource MainPanelBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!--Нижняя панель-->
+            <Grid Grid.Row="1">
+                <Grid.Style>
+                    <Style>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=BrowserTab, Path=IsSelected}" Value="True">
+                                <Setter Property="Grid.Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="39" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="1"
+                        Height="20">
+                    <Grid
+                        Visibility="{Binding SearchVM.IsStarted, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ProgressBar Value="1"
+                                     Maximum="1"
+                                     Background="#6D4A75"
+                                     Foreground="#6699ff"
+                                     BorderThickness="0"
+                                     Height="20" />
+                        <controls:ProgressRing
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            Width="20"
+                            Height="20"
+                            Foreground="White" />
+                        <TextBlock Text="{Binding SearchVM.Status}" VerticalAlignment="Center"
+                                   Foreground="White"
+                                   Margin="40,0,0,0" />
+                        <TextBlock Text="{Binding SearchVM.ProductProcessingStatus}" 
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Right"
+                                   Foreground="White"
+                                   Margin="0,0,20,0"/>
+                    </Grid>
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="Background" Value="{DynamicResource WindowTitleBrush}" />
+                        </Style>
+                    </Border.Style>
+                </Border>
+            </Grid>
+            <TabControl x:Name="tcMain"
+                        Grid.Row="0" Style="{StaticResource MainTabControlStyle}">
+                <TabItem Header="Информация" Tag="Icons/Домой.png">
+                    <Grid Background="#d0d5d7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.4*" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0"
+                                    Margin="10,10,10,5"
+                                    Background="#fcfcff"
+                                    BorderThickness="1"
+                                    BorderBrush="#c9c9c9">
+                                <StackPanel>
+                                    <TextBlock Text="Лицензия"
+                                               FontSize="16"
+                                               Foreground="#0086b2"
+                                               Margin="20,20,20,10" />
+                                    <TextBlock
+                                        Text="{Binding AuthorizationVM.ActivationDate, StringFormat='Дата активации: {0:dd.MM.yyyy}'}"
+                                        Margin="20,0,0,0" />
+                                    <TextBlock
+                                        Text="{Binding AuthorizationVM.ExpireDate, StringFormat='Истекает: {0:dd.MM.yyyy}'}"
+                                        Margin="20,5,0,0" />
+                                    <TextBlock
+                                        Text="{Binding AuthorizationVM.DaysLeft, StringFormat='Дней осталось: {0}'}"
+                                        Margin="20,5,0,20" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Row="1"
+                                    Margin="10,5,10,10"
+                                    Background="#fcfcff"
+                                    BorderThickness="1"
+                                    BorderBrush="#c9c9c9">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Margin="20,20,20,10">
+                                        <TextBlock Text="История изменений"
+                                                   FontSize="16"
+                                                   Foreground="#0086b2" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Текущая версия " Margin="0,10,0,0" />
+                                            <TextBlock Text="{Binding AuthorizationVM.CurrentVersion}"
+                                                       Margin="0,10,0,0" FontWeight="Bold" />
+                                        </StackPanel>
+
+                                        <Separator Margin="0,10,0,0"
+                                                   Background="#e4e4e4" />
+                                    </StackPanel>
+
+                                    <ScrollViewer Grid.Row="1"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsControl ItemsSource="{Binding AuthorizationVM.Updates}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Padding="20,10">
+                                                        <StackPanel>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding Version}" FontWeight="Bold" />
+                                                                <TextBlock
+                                                                    Text="{Binding Date, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                                    Margin="15,0,0,0"
+                                                                    VerticalAlignment="Top"
+                                                                    FontSize="11"
+                                                                    Foreground="#aeaeae" />
+                                                            </StackPanel>
+                                                            <TextBlock Text="{Binding Description}" Margin="40,5,0,0"
+                                                                       TextWrapping="Wrap" />
+                                                            <Separator Margin="0,10,0,0"
+                                                                       Background="#e4e4e4" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <ScrollViewer Grid.Column="1">
+                        <Border Background="White"
+                                Margin="0,10,10,10"
+                                BorderThickness="1"
+                                BorderBrush="#c9c9c9">
+                            <Grid Background="#fcfcff">
+                                <Grid.Resources>
+                                    <Style TargetType="{x:Type Expander}">
+                                        <Setter Property="Margin" Value="10" />
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0"
+                                           Text="FAQ"
+                                           FontSize="16"
+                                           Foreground="#0086b2"
+                                           Margin="20,20,20,0" />
+
+                                <Expander Grid.Row="1"
+                                          Header="Как происходит парсинг?">
+                                    <Border Padding="10"
+                                            Background="#fcfcff">
+                                        <TextBlock TextWrapping="Wrap">
+                                            Парсер начинает обходить раздел за разделом.
+                                            Зайдя в раздел, сначала выбираются складчины c префиксом открыто через функционал самого Складчика (если этот префикс не выбран в фильтрах, то берется следующий доступный).
+                                            <LineBreak />
+                                            <LineBreak />
+                                            Первая проверка. Происходит отсев уже по частичной информации, которая доступна в разделе. Это префикс складчины, название, дата создания, рейтинг, количество просмотров, количество складчиков, взнос, дата создания, дата сбора взносов, ник создатея складчины. Если какой-то из параметров не подходит, то складчина не проходит ко второму этапу проверки. Так перебирается весь раздел и собираются складчины с частичной информацией, которые пока подходят под фильтры.
+                                            <LineBreak />
+                                            <LineBreak />
+                                            Затем идет сверка частичных складчин с полными складчинами из локальной БД. Проверяется актуальность — сравниваются даты последней активности локальной складчины и только что полученной. Если складчина в БД актуальна, то она проверяется по всем фильтрам и попадает или не попадает в результат. Если же складчина в БД не актуальна, то на каждую частичную складчину делается отдельный запрос для получения её полных данных и происходит вторая проверка по оставшимся фильтрам: количество человек в резервном/основном списках, ник организатора, теги, цена, проверка по формулам.
+                                            <LineBreak />
+                                            <LineBreak />
+                                            Складчины, прошедшие вторую проверку, попадают в таблицу и вы можете видеть их на экране.
+                                            <LineBreak />
+                                            <LineBreak />
+                                            Таким образом если вы задаете фильтры так, что не нужно делать вторую проверку (получение полной складчины и ее фильтрация), то парсинг идет быстро, при условии если эти складчины уже есть в базе данных и они актуальны.
+                                            <LineBreak />
+                                            <LineBreak />
+                                            Пример.
+                                            <LineBreak />
+                                            <LineBreak />
+                                            1000 складчин, которые располагаются на 10 страницах, спарсятся за 10 запросов, если они уже есть в БД и даты последней активности локальных складчин актуальны. В противном случае те же 1000 складчин будут парсится за 1000 запросов.
+
+                                        </TextBlock>
+                                    </Border>
+                                </Expander>
+
+                                <Expander Grid.Row="2"
+                                          Header="Неочевидный функционал">
+                                    <Border Padding="10,5,10,5">
+                                        <StackPanel>
+                                            <StackPanel.Resources>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="TextWrapping" Value="Wrap" />
+                                                    <Setter Property="Margin" Value="0,5,0,5" />
+                                                </Style>
+                                            </StackPanel.Resources>
+                                            <TextBlock
+                                                Text="1. Щелкнув правой кнопкой мыши по заголовку таблицы можно настроить отображаемость столбцов." />
+                                            <TextBlock
+                                                Text="2. Фильтры можно сохранять и загружать. Для этого в окне фильтров вверху справа нажмите нужную кнопку." />
+                                            <TextBlock
+                                                Text="3. Если при перетаскивании складчин в категории зажать CTRL, то они скопируются, а не переместятся." />
+                                            <TextBlock
+                                                Text="4. Если выделить складчины в таблице, щелкнуть правой кнопкой мыши и выбрать пункт обновить/сохранить, то обновятся/сохранятся только выбранные складчины. 
+                                                                Если нажать кнопку обновить/экспорт на панели, то обновятся/сохранятся все складчины из категории." />
+                                            <TextBlock
+                                                Text="5. При двойном клике на складчину в таблице она откроется в браузере." />
+                                            <TextBlock Text="6. Вкладки можно закрывать нажатием колесика мыши." />
+                                        </StackPanel>
+                                    </Border>
+                                </Expander>
+
+                                <Expander Grid.Row="3"
+                                          Header="Как рассчитывается популярность?">
+                                    <Border Padding="10"
+                                            Background="#fcfcff">
+                                        <TextBlock
+                                            Text="Это отношение количества участников к количеству прошедших дней с даты создания складчины." />
+                                    </Border>
+                                </Expander>
+
+                                <Expander Grid.Row="4"
+                                          Header="Как рассчитывается реальный взнос?">
+                                    <Border Background="#fcfcff" Padding="10">
+                                        <TextBlock>
+                                            <TextBlock.Inlines>
+                                                <Run Text="(540+A*102/100+B*102/10)/B" FontWeight="Bold" />
+                                                <LineBreak />
+                                                <Run Text="где: А — цена продукта," />
+                                                <LineBreak />
+                                                <Run Text="       B — количество участников." />
+                                            </TextBlock.Inlines>
+                                        </TextBlock>
+                                    </Border>
+                                </Expander>
+
+                                <Expander Grid.Row="5"
+                                          Header="Как рассчитывается количество участников до минималки?">
+                                    <Border Background="#fcfcff" Padding="10">
+                                        <TextBlock>
+                                            <TextBlock.Inlines>
+                                                <Run Text="(5800+A*102/10)/298" FontWeight="Bold" />
+                                                <LineBreak />
+                                                <Run Text="где А — цена продукта" />
+                                            </TextBlock.Inlines>
+                                        </TextBlock>
+                                    </Border>
+                                </Expander>
+
+                                <Expander Grid.Row="6"
+                                          Header="Как рассчитывается рейтинг для организатора и члена клуба?">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Auto">
+                                        <Image Source="Resources/Icons/rating.png" Stretch="None" />
+                                    </ScrollViewer>
+                                </Expander>
+
+                            </Grid>
+                        </Border>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+                <!--Складчины-->
+                <TabItem Header="Складчины" Margin="0,6,0,-6" Tag="Icons/products.png"
+                         IsSelected="True">
+                    <TabItem.Resources>
+                        <CollectionViewSource x:Key="ExistingTabs" Source="{Binding CategoryManagerVM.OpenCategories}" />
+
+                        <CompositeCollection x:Key="CompositeCollection">
+                            <TabItem>
+                                <TabItem.Template>
+                                    <ControlTemplate TargetType="{x:Type TabItem}">
+                                        <Border x:Name="Border"
+                                                BorderThickness="0,1,1,0"
+                                                Background="White"
+                                                BorderBrush="#e4e4e4"
+                                                Height="31">
+                                            <Grid Margin="3,3,15,3">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image x:Name="Image" Margin="5,0"
+                                                           Source="Resources/Icons/categories/search.png"
+                                                           Width="16" />
+                                                    <TextBlock x:Name="TextBlock"
+                                                               Text="Поиск"
+                                                               VerticalAlignment="Center"
+                                                               FontSize="12"
+                                                               Foreground="#474747" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="False">
+                                                <Setter TargetName="Border" Property="Background"
+                                                        Value="#f2f2f2" />
+                                                <Setter TargetName="Border" Property="BorderThickness"
+                                                        Value="0,1,1,1" />
+                                                <Setter TargetName="TextBlock" Property="Foreground"
+                                                        Value="#797979" />
+                                                <Setter TargetName="Image" Property="Source"
+                                                        Value="Resources/Icons/categories/search-disabled.png" />
+                                            </Trigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsSelected" Value="False" />
+                                                    <Condition Property="IsMouseOver" Value="True" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter TargetName="Border" Property="Background"
+                                                        Value="#dadada" />
+                                            </MultiTrigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </TabItem.Template>
+                                <TabItem.ContentTemplate>
+                                    <DataTemplate />
+                                </TabItem.ContentTemplate>
+                            </TabItem>
+                            <CollectionContainer
+                                Collection="{Binding Source={StaticResource ExistingTabs}}" />
+                        </CompositeCollection>
+                    </TabItem.Resources>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition x:Name="CategoriesColumn" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="КАТЕГОРИИ"
+                                           FontSize="13"
+                                           Foreground="#6b6b6b"
+                                           FontFamily="Roboto"
+                                           FontWeight="Bold"
+                                           Margin="20,10,10,10"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Left" />
+                                <StackPanel Grid.Column="1"
+                                            Orientation="Horizontal">
+                                    <Button Command="{Binding CategoryManagerVM.AddCategoryCommand}"
+                                            ToolTip="Добавить категорию"
+                                            Margin="5,0">
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}"
+                                                   BasedOn="{StaticResource PanelButtonStyle}">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/categories/add-category.png" />
+                                                <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Image
+                                                                Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=Tag}"
+                                                                Stretch="None" />
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Opacity" Value="0.7" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Opacity" Value="0.9" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Opacity" Value="1" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Command="{Binding CategoryManagerVM.RemoveCommand}"
+                                            ToolTip="Удалить категорию"
+                                            Margin="5,0">
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}"
+                                                   BasedOn="{StaticResource PanelButtonStyle}">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/categories/remove-category.png" />
+                                                <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Image
+                                                                Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=Tag}"
+                                                                Stretch="None" />
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Opacity" Value="0.7" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Opacity" Value="0.9" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Opacity" Value="1" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Tag"
+                                                                Value="/Resources/Icons/categories/remove-category-disabled.png" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Command="{Binding CategoryManagerVM.ExpandAllCommand}" 
+                                            ToolTip="Развернуть все категории" 
+                                            Margin="5,0">
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}"
+                                                   BasedOn="{StaticResource PanelButtonStyle}">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/categories/maximize.png" />
+                                                <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Image
+                                                                Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=Tag}"
+                                                                Stretch="None" />
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Opacity" Value="0.7" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Opacity" Value="0.9" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Opacity" Value="1" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    
+                                    <Button Command="{Binding CategoryManagerVM.MinimizeAllCommand}"
+                                            ToolTip="Свернуть все категории" 
+                                            Margin="5,0">
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}"
+                                                   BasedOn="{StaticResource PanelButtonStyle}">
+                                                <Setter Property="Tag"
+                                                        Value="/Resources/Icons/categories/minimize.png" />
+                                                <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Image
+                                                                Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=Tag}"
+                                                                Stretch="None" />
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Opacity" Value="0.7" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Opacity" Value="0.9" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Opacity" Value="1" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                            <myControls:CategoryTreeView Grid.Row="1"
+                                                         DataContext="{Binding CategoryManagerVM}" />
+
+                        </Grid>
+                        <GridSplitter Grid.Column="1"
+                                      VerticalAlignment="Stretch"
+                                      HorizontalAlignment="Center"
+                                      Width="3"
+                                      BorderThickness="0,0,1,0"
+                                      BorderBrush="#c5cbcd"
+                                      Background="Transparent" />
+
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TabControl x:Name="TabControlAbove"
+                                        Grid.Row="0"
+                                        Style="{StaticResource CategoriesTabControlStyle}"
+                                        SelectedItem="{Binding CategoryManagerVM.SelectedCategory, Mode=TwoWay}"
+                                        ItemsSource="{StaticResource CompositeCollection}">
+                                <TabControl.ContentTemplate>
+                                    <DataTemplate />
+                                </TabControl.ContentTemplate>
+                            </TabControl>
+
+                            <ListBox Grid.Row="1"
+                                     ItemsSource="{Binding Source={StaticResource CompositeCollection}}"
+                                     BorderThickness="0"
+                                     SelectedItem="{Binding SelectedItem, ElementName=TabControlAbove}">
+                                <ListBox.Resources>
+                                    <converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector"
+                                                                         SearchTemplate="{StaticResource SearchTemplate}"
+                                                                         CategoryTemplate="{StaticResource CategoryTemplate}" />
+                                </ListBox.Resources>
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <ContentPresenter
+                                                        ContentTemplateSelector="{StaticResource CategoryTemplateSelector}" />
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Visibility"
+                                                Value="{Binding IsSelected, RelativeSource={RelativeSource Self}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Grid />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Content}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.Style>
+                                    <Style>
+                                        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+                                        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled" />
+                                    </Style>
+                                </ListBox.Style>
+                            </ListBox>
+
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <!--Браузер-->
+                <TabItem x:Name="BrowserTab" Header="Браузер" Margin="0,6,0,-6" Tag="Icons/browser.png">
+                    <myControls:Browser DataContext="{Binding}" />
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <Border Background="White"
+                Visibility="{Binding AuthorizationVM.IsSuccess, Converter={StaticResource BooleanToInvisibilityConverter}}">
+            <view:Authorization Width="300"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                DataContext="{Binding AuthorizationVM}" />
+        </Border>
+    </Grid>
+</controls:MetroWindow>

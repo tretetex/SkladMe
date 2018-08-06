@@ -1,0 +1,56 @@
+﻿<controls:MetroWindow x:Class="SkladMe.Controls.TextNotes"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:local="clr-namespace:SkladMe.Controls"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      xmlns:System="clr-namespace:System;assembly=mscorlib"
+                      mc:Ignorable="d"
+                      WindowStyle="ToolWindow"
+                      Title="Добавление заметки" MinHeight="200" MinWidth="250" Height="200" Width="250"
+                      ResizeMode="CanResize"
+                      UseLayoutRounding="True"
+                      SnapsToDevicePixels="True"
+                      ShowTitleBar="True"
+                      TitleCharacterCasing="Normal"
+                      BorderThickness="1"
+                      BorderBrush="#6D4A75"
+                      NonActiveWindowTitleBrush="#6D4A75"
+                      WindowTitleBrush="#6D4A75"
+                      ShowIconOnTitleBar="True"
+                      WindowTransitionsEnabled="False"
+                      TitlebarHeight="30">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Текст: " Grid.Row="0"  Margin="10,5"  />
+            <TextBox x:Name="tbNote" Grid.Row="1" Margin="10,5" TextWrapping="Wrap" AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto"/>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="10,5,10,10">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="MinHeight" Value="25" />
+                    <Setter Property="MinWidth" Value="75" />
+                    <Setter Property="Margin" Value="10,0,0,0" />
+                </Style>
+            </StackPanel.Resources>
+            <Button x:Name="ButtonOk"
+                    Content="OK"
+                    Click="BtnOK_Click" />
+            <Button Content="Отмена"
+                    Click="BtnCancel_Click" />
+        </StackPanel>
+    </Grid>
+</controls:MetroWindow>

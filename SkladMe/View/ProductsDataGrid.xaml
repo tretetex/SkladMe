@@ -1,0 +1,354 @@
+﻿<UserControl x:Class="SkladMe.Controls.ProductsDataGrid"
+             x:Name="UserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:infrastructure="clr-namespace:SkladMe.Infrastructure"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             xmlns:viewModel="clr-namespace:SkladMe.ViewModel"
+             xmlns:behavior="clr-namespace:SkladMe.Resources.Behavior"
+             xmlns:enhancedwDataGridExample="clr-namespace:SkladMe.Infrastructure.EnhancedwDataGridExample"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             mc:Ignorable="d"
+             UseLayoutRounding="True"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <infrastructure:BindingProxy x:Key="CV"
+                                     Data="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ColumnVisibilityVM}" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <ControlTemplate x:Key="MenuCheckBoxTemplate" TargetType="{x:Type CheckBox}">
+            <Border Background="Transparent">
+                <Grid>
+                    <CheckBox Content="{TemplateBinding Content}"
+                              IsChecked="{TemplateBinding IsChecked}" />
+                    <Border x:Name="Border" Background="Transparent" Opacity="0.4" />
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Border" Property="Background" Value="#91c9f7" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style x:Key="VisibilityMenuItemStyle" TargetType="{x:Type MenuItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border Background="Transparent">
+                            <Grid>
+                                <Border x:Name="Border" Background="Transparent" Opacity="0.4" />
+                                <CheckBox Content="{TemplateBinding Header}"
+                                          IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type MenuItem}}, Path=Tag}"
+                                          Template="{StaticResource MenuCheckBoxTemplate}" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#91c9f7" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ContextMenu x:Key="HeaderContextMenu">
+            <MenuItem Header="Id"
+                      Tag="{Binding Data.Id, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Префикс"
+                      Tag="{Binding Data.Prefix, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Раздел"
+                      Tag="{Binding Data.Chapter, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Подраздел"
+                      Tag="{Binding Data.Subchapter, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Название"
+                      Tag="{Binding Data.Title, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Цена"
+                      Tag="{Binding Data.Price, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Взнос"
+                      Tag="{Binding Data.Fee, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Взнос к цене"
+                      Tag="{Binding Data.FeeToPrice, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Повтор"
+                      Tag="{Binding Data.IsRepeat, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Организатор"
+                      Tag="{Binding Data.Organizer, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Пользователи"
+                      Tag="{Binding Data.Users, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="В основном списке"
+                      Tag="{Binding Data.MainList, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="В резервном списке"
+                      Tag="{Binding Data.ReserveList, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Человек до минималки"
+                      Tag="{Binding Data.PeopleForMin, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Топикстартер"
+                      Tag="{Binding Data.Creator, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Дата создания"
+                      Tag="{Binding Data.DateCreate, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <!--<MenuItem Header="Последняя активность" Tag="{Binding Data.DateUpdate, Source={StaticResource CV}, Mode=TwoWay}"  
+                      Style="{StaticResource VisibilityMenuItemStyle}" />-->
+            <MenuItem Header="Сбор взносов"
+                      Tag="{Binding Data.DateFee, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Вовлеченность"
+                      Tag="{Binding Data.Involvement, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Популярность"
+                      Tag="{Binding Data.Popularity, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Рейтинг для Орга"
+                      Tag="{Binding Data.OrganizerRating, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Рейтинг для ЧК"
+                      Tag="{Binding Data.ClubMemberRating, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Отзывы"
+                      Tag="{Binding Data.ReviewCount, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Оценка"
+                      Tag="{Binding Data.Rating, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Просмотры"
+                      Tag="{Binding Data.ViewCount, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+            <MenuItem Header="Заметка"
+                      Tag="{Binding Data.Note, Source={StaticResource CV}, Mode=TwoWay}"
+                      Style="{StaticResource VisibilityMenuItemStyle}" />
+        </ContextMenu>
+
+        <ControlTemplate x:Key="ColumnHeaderTemplate" TargetType="{x:Type DataGridColumnHeader}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Border x:Name="Border" Background="#f4f7f7" BorderBrush="#dde0e1" BorderThickness="0,0,0,1"
+                        Grid.ColumnSpan="2" />
+
+                <Thumb x:Name="PART_RightHeaderGripper" Grid.Column="1"
+                       HorizontalAlignment="Right"
+                       Width="5"
+                       BorderThickness="1"
+                       BorderBrush="Transparent"
+                       Background="Transparent"
+                       Margin="0,1"
+                       Cursor="SizeWE">
+                    <Thumb.Style>
+                        <Style TargetType="{x:Type Thumb}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Border BorderThickness="1,0,0,0"
+                                                BorderBrush="#e4e4e4" />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Thumb.Style>
+                </Thumb>
+
+
+                <StackPanel Orientation="Horizontal">
+                    <ContentPresenter x:Name="ContentPresenter" Margin="10"
+                                      TextBlock.Foreground="#91a5aa"
+                                      TextBlock.FontFamily="Roboto"
+                                      TextBlock.FontWeight="Medium" />
+                    <Path x:Name="SortArrow"
+                          Width="8" Height="6"
+                          Margin="0,2,10,0"
+                          Stretch="Fill" Opacity="0.5" Fill="#0099cc"
+                          RenderTransformOrigin="0.5,0.4"
+                          Visibility="Collapsed"
+                          Data="M0,0 L1,0 L0.5,1" />
+                </StackPanel>
+
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="ContentPresenter" Property="TextBlock.Foreground" Value="#0099cc" />
+                </Trigger>
+                <Trigger Property="SortDirection" Value="Ascending">
+                    <Setter TargetName="ContentPresenter" Property="TextBlock.Foreground" Value="#0099cc" />
+                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="SortArrow" Property="RenderTransform">
+                        <Setter.Value>
+                            <RotateTransform Angle="180" />
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="SortDirection" Value="Descending">
+                    <Setter TargetName="ContentPresenter" Property="TextBlock.Foreground" Value="#0099cc" />
+                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style TargetType="{x:Type DataGridCell}">
+            <Setter Property="Background" Value="Transparent" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter Margin="2"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="Black" />
+                    <Setter Property="Background" Value="#cde8ff" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+    <Border Background="#d0d5d7" Padding="6">
+        <enhancedwDataGridExample:EnhancedDataGrid x:Name="dg"
+                  ColumnInfo="{Binding ElementName=UserControl, Path=ColumnsSizeCollection, Mode=TwoWay}"
+                  BorderThickness="1"
+                  BorderBrush="#c5cbcd"
+                  CanUserAddRows="False"
+                  IsReadOnly="True"
+                  AutoGenerateColumns="False"
+                  SelectionMode="Extended"
+                  ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}"
+                  ContextMenu="{Binding GridContextMenu, RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}"
+                  SelectionChanged="dg_SelectionChanged"
+                  RowStyle="{Binding RowStyle, RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}"
+                  VirtualizingStackPanel.IsVirtualizing="true"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  EnableRowVirtualization="True"
+                  EnableColumnVirtualization="True"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                  PreviewKeyDown="dg_PreviewKeyDown"
+                  PreviewMouseRightButtonDown="Dg_OnPreviewMouseRightButtonDown"
+                  dd:DragDrop.IsDragSource="{Binding ElementName=UserControl, Path=IsDragAvailable}"
+                  dd:DragDrop.DragHandler="{Binding ElementName=UserControl, Path=DragHandler}"
+                  dd:DragDrop.DragDropCopyKeyState="ControlKey"
+                  behavior:DataGridBehavior.DisplayRowNumber="True" LoadingRow="dg_LoadingRow"
+                                                   ColumnSizeChangedEvent="Dg_OnColumnSizeChangedEvent">
+            <enhancedwDataGridExample:EnhancedDataGrid.ColumnHeaderStyle>
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="Template" Value="{StaticResource ColumnHeaderTemplate}" />
+                    <Setter Property="ContextMenu" Value="{StaticResource HeaderContextMenu}" />
+                    <Setter Property="FontSize" Value="11" />
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="#0099cc" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </enhancedwDataGridExample:EnhancedDataGrid.ColumnHeaderStyle>
+            <enhancedwDataGridExample:EnhancedDataGrid.Columns>
+                <DataGridTextColumn Header="№"
+                                    Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}},
+                                    Path=Header}"
+                                    CanUserSort="False"
+                                    CanUserReorder="False">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Padding" Value="10,0" />
+                            <Setter Property="FontSize" Value="11" />
+                            <Setter Property="FontFamily" Value="Roboto" />
+                            <Setter Property="Foreground" Value="#868686" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="Id" Binding="{Binding Model.Id}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Id, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                           <Setter Property="Padding" Value="10,0,0,0" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="Padding" Value="10,5" />
+                            <Setter Property="Template" Value="{StaticResource ColumnHeaderTemplate}" />
+                            <Setter Property="ContextMenu" Value="{StaticResource HeaderContextMenu}" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Префикс" Binding="{Binding Model.Prefix.Title}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Prefix, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Раздел" Binding="{Binding Model.Chapter.Title}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Chapter, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Подраздел" Binding="{Binding Model.Subсhapter.Title}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Subchapter, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Название" Binding="{Binding Model.Title}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Title, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Цена" Binding="{Binding Model.Price}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Price, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Взнос" Binding="{Binding Model.Fee}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Fee, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Взнос к цене" Binding="{Binding FeeToPrice, StringFormat={}{0:0.000}}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.FeeToPrice, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridCheckBoxColumn Header="Повтор" Binding="{Binding Model.IsRepeat}"
+                                        Visibility="{Binding Source={StaticResource CV}, Path=Data.IsRepeat, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Организатор" Binding="{Binding Model.Organizer.Nickname}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Organizer, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Пользователи" Binding="{Binding Model.UsersTotalCount}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Users, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="В основном списке" Binding="{Binding Model.MembersAsMainCount}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.MainList, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="В резервном списке" Binding="{Binding Model.MembersAsReserveCount}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.ReserveList, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Человек до минималки" Binding="{Binding Model.PeopleForMin}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.PeopleForMin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Топикстартер" Binding="{Binding Model.Creator.Nickname}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Creator, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Дата создания"
+                                    Binding="{Binding Model.DateOfCreation, StringFormat=\{0:dd.MM.yy\}}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.DateCreate, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <!--<DataGridTextColumn Header="Последняя активность" Binding="{Binding Product.DateUpdate, StringFormat=\{0:dd.MM.yy\}}"
+                                Visibility="{Binding Source={StaticResource CV}, Path=Data.DateUpdate, Converter={StaticResource BooleanToVisibilityConverter}}" />-->
+                <DataGridTextColumn Header="Сбор взносов"
+                                    Binding="{Binding Model.DateFee, StringFormat=\{0:dd.MM.yy\}}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.DateFee, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Вовлеченность" Binding="{Binding Involvement}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Involvement, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Популярность" Binding="{Binding Model.Popularity}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Popularity, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Рейтинг для Орга" Binding="{Binding Model.OrganizerRating}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.OrganizerRating, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Рейтинг для ЧК" Binding="{Binding Model.ClubMemberRating}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.ClubMemberRating, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Отзывы" Binding="{Binding Model.ReviewCount}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.ReviewCount, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Оценка" Binding="{Binding Model.Rating}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Rating, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Просмотры" Binding="{Binding Model.ViewCount}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.ViewCount, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <DataGridTextColumn Header="Заметка" Binding="{Binding Note}"
+                                    Visibility="{Binding Source={StaticResource CV}, Path=Data.Note, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                
+            </enhancedwDataGridExample:EnhancedDataGrid.Columns>
+        </enhancedwDataGridExample:EnhancedDataGrid>
+    </Border>
+</UserControl>

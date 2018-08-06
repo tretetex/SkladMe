@@ -1,0 +1,163 @@
+﻿<controls:MetroWindow x:Class="SkladMe.Controls.ColorNotes"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+                      xmlns:converters="clr-namespace:SkladMe.Resources.Converters"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      mc:Ignorable="d"
+                      Title="Редактирование цветовых меток"
+                      Width="300"
+                      Height="300"
+                      d:DesignHeight="300" d:DesignWidth="300"
+                      x:Name="UserControl"
+                      ResizeMode="NoResize"
+                      UseLayoutRounding="True"
+                      SnapsToDevicePixels="True"
+                      ShowTitleBar="True"
+                      TitleCharacterCasing="Normal"
+                      BorderThickness="1"
+                      BorderBrush="#6D4A75"
+                      NonActiveWindowTitleBrush="#6D4A75"
+                      WindowTitleBrush="#6D4A75"
+                      ShowIconOnTitleBar="True"
+                      WindowTransitionsEnabled="False"
+                      TitlebarHeight="30">
+    <Window.Resources>
+        <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
+        <converters:StringToColor x:Key="StringToColor" />
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+
+            </Grid.RowDefinitions>
+            <ListBox x:Name="lbColors" Grid.Row="1"
+                     ItemsSource="{Binding ElementName=UserControl, Path=ItemsSource, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0"
+                                       Fill="{Binding Value, Converter={StaticResource StringToBrushConverter}}"
+                                       Width="15" Height="15" />
+                            <TextBlock Grid.Column="1" Text="{Binding Title}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <Button Content="Add" Click="btnAdd_Click" 
+                        ToolTip="Добавить метку"
+                         Margin="10">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}"
+                                                   BasedOn="{StaticResource PanelButtonStyle}">
+                            <Setter Property="Tag" Value="/Resources/Icons/categories/add-category.png" />
+                            <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Image Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=Tag}" 
+                                                                   Stretch="None"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Opacity" Value="0.7" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.9" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Opacity" Value="1" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="Remove" Click="btnRemove_Click"
+                        ToolTip="Удалить метку"
+                        Margin="5,10,10,10">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}"
+                                                   BasedOn="{StaticResource PanelButtonStyle}">
+                            <Setter Property="Tag" Value="/Resources/Icons/categories/remove-category.png" />
+                            <Setter Property="SnapsToDevicePixels" Value="True" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Image Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}, Path=Tag}" 
+                                                                   Stretch="None"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Opacity" Value="0.7" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.9" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Opacity" Value="1" />
+                                </Trigger>
+                                <DataTrigger Binding="{Binding ElementName=lbColors, Path=SelectedValue}" Value="{x:Null}">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Tag" Value="/Resources/Icons/categories/remove-category-disabled.png" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <!-- Properties -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
+                
+                <TextBlock Text="Название: " Margin="5" VerticalAlignment="Center" />
+                <TextBox Text="{Binding ElementName=lbColors, Path=SelectedItem.Title, Mode=TwoWay}"
+                             Margin="5" VerticalAlignment="Center" />
+                <TextBlock Text="Цвет" Margin="5" VerticalAlignment="Center" />
+                <xctk:ColorPicker Margin="5"
+                                  DisplayColorAndName="True"
+                                  SelectedColor="{Binding ElementName=lbColors, Path=SelectedItem.Value, 
+                                  Converter={StaticResource StringToColor}, Mode=TwoWay}" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Column="0"
+                    Grid.ColumnSpan="2" VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="10"
+                    Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="MinHeight" Value="25" />
+                    <Setter Property="MinWidth" Value="75" />
+                    <Setter Property="Margin" Value="10,0,0,0" />
+                </Style>
+            </StackPanel.Resources>
+            <Button Content="OK" Click="btnOK_Click" />
+            <Button Content="Cancel" Click="btnCancel_Click" />
+        </StackPanel>
+        
+    </Grid>
+</controls:MetroWindow>

@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="SkladMe.Controls.Browser"
+             x:Name="UserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+             xmlns:infrastructure="clr-namespace:SkladMe.Infrastructure"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="B2V" />
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition  />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0"
+                Content="Обновить" 
+                Click="ButtonBase_OnClick"/>
+        <wpf:ChromiumWebBrowser Grid.Row="1"
+                                x:Name="browser"
+                                Address="https://www.skladchik.com" 
+                                />
+        <StatusBar Grid.Row="2" Height="20">
+            <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=browser, Path=IsLoading, Converter={StaticResource B2V}}">
+                <ProgressBar HorizontalAlignment="Right"
+                             IsIndeterminate="{Binding ElementName=browser, Path=IsLoading}"
+                             Width="100" />
+            </StackPanel>
+        </StatusBar>
+    </Grid>
+        
+</UserControl>
